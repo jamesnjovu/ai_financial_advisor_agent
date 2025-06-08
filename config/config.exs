@@ -14,6 +14,10 @@ config :app,
 config :app, App.Repo,
        types: App.PostgrexTypes
 
+config :app, :openai,
+       api_key: System.get_env("OPENAI_API_KEY"),
+       model: "gpt-4.1"
+
 # Configures the endpoint
 config :app, AppWeb.Endpoint,
   url: [host: "localhost"],

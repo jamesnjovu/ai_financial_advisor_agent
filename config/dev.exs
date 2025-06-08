@@ -11,6 +11,7 @@ config :app, App.Repo,
   pool_size: 10,
   types: App.PostgrexTypes
 
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

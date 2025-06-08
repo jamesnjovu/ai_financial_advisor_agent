@@ -1,0 +1,406 @@
+<div class="flex h-screen bg-gray-900 text-white overflow-hidden">
+  <!-- Mobile Overlay for Sidebar -->
+  <div class={[
+    "fixed inset-0 z-50 lg:hidden",
+    if(@sidebar_open, do: "block", else: "hidden")
+  ]}>
+    <div class="fixed inset-0 bg-black opacity-50" phx-click="toggle_sidebar"></div>
+    <div class="relative flex flex-col w-80 h-full bg-gray-800 border-r border-gray-700">
+      <!-- Mobile Sidebar Content -->
+      <div class="p-4 border-b border-gray-700">
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-semibold text-white">AI Financial Advisor</h1>
+          <button
+            phx-click="toggle_sidebar"
+            class="lg:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Sync Status -->
+        <div class="mt-3 p-2 bg-gray-700 rounded-lg">
+          <div class="text-xs text-gray-300 mb-1">Integration Status:</div>
+          <div class="flex items-center space-x-2 text-xs">
+            <span class={[
+              "px-2 py-1 rounded",
+              case @sync_status.gmail do
+                "connected" -> "bg-green-600 text-white"
+                "synced" -> "bg-green-600 text-white"
+                "partial" -> "bg-orange-600 text-white"
+                "syncing" -> "bg-yellow-600 text-white"
+                "error" -> "bg-red-600 text-white"
+                "no_data" -> "bg-blue-600 text-white"
+                _ -> "bg-gray-600 text-gray-300"
+              end
+            ]}>
+              Gmail
+            </span>
+            <span class={[
+              "px-2 py-1 rounded",
+              case @sync_status.hubspot do
+                "connected" -> "bg-green-600 text-white"
+                "synced" -> "bg-green-600 text-white"
+                "syncing" -> "bg-yellow-600 text-white"
+                "error" -> "bg-red-600 text-white"
+                _ -> "bg-gray-600 text-gray-300"
+              end
+            ]}>
+              HubSpot
+            </span>
+          </div>
+          <button
+            phx-click="sync_data"
+            class="mt-2 w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded"
+          >
+            Sync Data
+          </button>
+        </div>
+
+        <button
+          phx-click="new_conversation"
+          class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-lg text-white bg-transparent hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          New Chat
+        </button>
+      </div>
+
+      <!-- Pending Tasks -->
+      <%= if Enum.any?(@pending_tasks) do %>
+        <div class="p-4 border-b border-gray-700">
+          <div class="text-sm font-medium text-white mb-2">Pending Tasks</div>
+          <div class="space-y-2 max-h-32 overflow-y-auto">
+            <%= for task <- Enum.take(@pending_tasks, 3) do %>
+              <div class="p-2 bg-gray-700 rounded text-xs">
+                <div class="font-medium text-white"><%= task.title %></div>
+                <div class="text-gray-400"><%= task.status %></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Conversations List -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-2">
+          <%= for conv <- @conversations do %>
+            <div
+              phx-click="select_conversation"
+              phx-value-id={conv.id}
+              class={[
+                "p-3 rounded-lg cursor-pointer mb-2 transition-colors",
+                if(conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
+              ]}
+            >
+              <div class="font-medium text-sm text-white truncate">
+                <%= conv.title || "New Conversation" %>
+              </div>
+              <div class="text-xs text-gray-400 mt-1">
+                <%= format_date(conv.updated_at) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- User Info -->
+      <div class="p-4 border-t border-gray-700">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">
+                <%= String.first(@current_user.name || @current_user.email) |> String.upcase() %>
+              </span>
+            </div>
+            <div class="ml-3">
+              <div class="text-sm font-medium text-white">
+                <%= @current_user.name || @current_user.email %>
+              </div>
+              <div class="text-xs text-gray-400">
+                <%= if @current_user.hubspot_access_token, do: "HubSpot Connected", else: "Connect HubSpot" %>
+              </div>
+            </div>
+          </div>
+          <.link
+            navigate={~p"/settings"}
+            class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+            title="Settings"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </.link>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Sidebar -->
+  <div class="hidden lg:flex w-80 bg-gray-800 border-r border-gray-700 flex-col">
+    <!-- Header -->
+    <div class="p-4 border-b border-gray-700">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl font-semibold text-white">AI Financial Advisor</h1>
+      </div>
+
+      <!-- Sync Status -->
+      <div class="mt-3 p-2 bg-gray-700 rounded-lg">
+        <div class="text-xs text-gray-300 mb-1">Integration Status:</div>
+        <div class="flex items-center space-x-2 text-xs">
+          <span class={[
+            "px-2 py-1 rounded",
+            case @sync_status.gmail do
+              "connected" -> "bg-green-600 text-white"
+              "synced" -> "bg-green-600 text-white"
+              "partial" -> "bg-orange-600 text-white"
+              "syncing" -> "bg-yellow-600 text-white"
+              "error" -> "bg-red-600 text-white"
+              "no_data" -> "bg-blue-600 text-white"
+              _ -> "bg-gray-600 text-gray-300"
+            end
+          ]}>
+            Gmail
+          </span>
+          <span class={[
+            "px-2 py-1 rounded",
+            case @sync_status.hubspot do
+              "connected" -> "bg-green-600 text-white"
+              "synced" -> "bg-green-600 text-white"
+              "syncing" -> "bg-yellow-600 text-white"
+              "error" -> "bg-red-600 text-white"
+              _ -> "bg-gray-600 text-gray-300"
+            end
+          ]}>
+            HubSpot
+          </span>
+        </div>
+        <button
+          phx-click="sync_data"
+          class="mt-2 w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded"
+        >
+          Sync Data
+        </button>
+      </div>
+
+      <button
+        phx-click="new_conversation"
+        class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-lg text-white bg-transparent hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        New Chat
+      </button>
+    </div>
+
+    <!-- Pending Tasks -->
+    <%= if Enum.any?(@pending_tasks) do %>
+      <div class="p-4 border-b border-gray-700">
+        <div class="text-sm font-medium text-white mb-2">Pending Tasks</div>
+        <div class="space-y-2 max-h-32 overflow-y-auto">
+          <%= for task <- Enum.take(@pending_tasks, 3) do %>
+            <div class="p-2 bg-gray-700 rounded text-xs">
+              <div class="font-medium text-white"><%= task.title %></div>
+              <div class="text-gray-400"><%= task.status %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Conversations List -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-2">
+        <%= for conv <- @conversations do %>
+          <div
+            phx-click="select_conversation"
+            phx-value-id={conv.id}
+            class={[
+              "p-3 rounded-lg cursor-pointer mb-2 transition-colors",
+              if(conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
+            ]}
+          >
+            <div class="font-medium text-sm text-white truncate">
+              <%= conv.title || "New Conversation" %>
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+              <%= format_date(conv.updated_at) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-medium">
+              <%= String.first(@current_user.name || @current_user.email) |> String.upcase() %>
+            </span>
+          </div>
+          <div class="ml-3">
+            <div class="text-sm font-medium text-white">
+              <%= @current_user.name || @current_user.email %>
+            </div>
+            <div class="text-xs text-gray-400">
+              <%= if @current_user.hubspot_access_token, do: "HubSpot Connected", else: "Connect HubSpot" %>
+            </div>
+          </div>
+        </div>
+        <.link
+          navigate={~p"/settings"}
+          class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+          title="Settings"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </.link>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Chat Area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Mobile Header with Hamburger -->
+    <div class="lg:hidden p-4 border-b border-gray-700 bg-gray-800">
+      <div class="flex items-center justify-between">
+        <button
+          phx-click="toggle_sidebar"
+          class="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold text-white truncate mx-4">
+          <%= @conversation.title || "New Conversation" %>
+        </h2>
+        <div class="w-9"></div> <!-- Spacer for centering -->
+      </div>
+    </div>
+
+    <!-- Desktop Chat Header -->
+    <div class="hidden lg:block p-4 border-b border-gray-700 bg-gray-800">
+      <h2 class="text-lg font-semibold text-white">
+        <%= @conversation.title || "New Conversation" %>
+      </h2>
+    </div>
+
+    <!-- Messages -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900" id="messages-container" phx-hook="ScrollToBottom">
+      <%= if Enum.empty?(@messages) do %>
+        <div class="text-center text-gray-400 mt-8">
+          <div class="max-w-md mx-auto">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path>
+            </svg>
+            <p class="text-lg">Start a conversation with your AI assistant</p>
+            <p class="text-sm mt-2">Ask about your clients, schedule meetings, or manage your contacts</p>
+            <div class="mt-4 text-xs text-gray-500">
+              <p>Try saying:</p>
+              <ul class="mt-2 space-y-1">
+                <li>"Who mentioned their kid plays baseball?"</li>
+                <li>"Schedule a meeting with John Smith"</li>
+                <li>"When someone emails me, create a HubSpot contact"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <%= for message <- @messages do %>
+          <div class={[
+            "flex",
+            if(message.role == "user", do: "justify-end", else: "justify-start")
+          ]}>
+            <div class={[
+              "max-w-3xl px-4 py-3 rounded-lg",
+              if(message.role == "user",
+                do: "bg-blue-600 text-white ml-auto",
+                else: "bg-gray-800 border border-gray-700 text-gray-100"
+              ),
+              "lg:max-w-3xl md:max-w-2xl sm:max-w-sm max-w-[85%]"
+            ]}>
+              <div class="whitespace-pre-wrap text-sm leading-relaxed"><%= message.content %></div>
+              <div class={[
+                "text-xs mt-2",
+                if(message.role == "user", do: "text-blue-100", else: "text-gray-400")
+              ]}>
+                <%= format_time(message.inserted_at) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- Loading indicator -->
+      <%= if @loading do %>
+        <div class="flex justify-start">
+          <div class="bg-gray-800 border border-gray-700 text-gray-100 max-w-3xl px-4 py-3 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+              <span class="text-sm">AI is thinking...</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Error display -->
+      <%= if @error do %>
+        <div class="flex justify-start">
+          <div class="bg-red-900 border border-red-700 text-red-100 max-w-3xl px-4 py-3 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-sm"><%= @error %></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Message Input -->
+    <div class="p-4 border-t border-gray-700 bg-gray-800">
+      <.form
+        for={%{}}
+        as={:message}
+        phx-submit="send_message"
+        phx-change="validate"
+        class="flex space-x-2 lg:space-x-4"
+      >
+        <div class="flex-1 relative">
+          <textarea
+              id="message-input"
+              name="message[content]"
+              value={@message_input}
+              placeholder="Ask anything about your clients, schedule meetings, or set up automations..."
+              class="resize-none block w-full rounded-lg text-white bg-gray-700 border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm placeholder-gray-400 pr-12 focus:outline-none"
+              style="min-height: 44px; max-height: 120px; color: white !important;"
+              rows="1"
+              disabled={@loading}
+              phx-hook="AutoResize"
+          />
+          <button
+            type="submit"
+            disabled={@loading || String.trim(@message_input) == ""}
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+          </button>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>
