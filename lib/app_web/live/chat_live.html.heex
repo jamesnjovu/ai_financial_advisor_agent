@@ -94,7 +94,7 @@
               phx-value-id={conv.id}
               class={[
                 "p-3 rounded-lg cursor-pointer mb-2 transition-colors",
-                if(conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
+                if(@conversation && conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
               ]}
             >
               <div class="font-medium text-sm text-white truncate">
@@ -223,7 +223,7 @@
             phx-value-id={conv.id}
             class={[
               "p-3 rounded-lg cursor-pointer mb-2 transition-colors",
-              if(conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
+              if(@conversation && conv.id == @conversation.id, do: "bg-gray-700 border border-gray-600", else: "hover:bg-gray-700")
             ]}
           >
             <div class="font-medium text-sm text-white truncate">
@@ -283,7 +283,7 @@
           </svg>
         </button>
         <h2 class="text-lg font-semibold text-white truncate mx-4">
-          <%= @conversation.title || "New Conversation" %>
+          <%= if @conversation, do: @conversation.title || "New Conversation", else: "AI Financial Advisor" %>
         </h2>
         <div class="w-9"></div> <!-- Spacer for centering -->
       </div>
@@ -292,7 +292,7 @@
     <!-- Desktop Chat Header -->
     <div class="hidden lg:block p-4 border-b border-gray-700 bg-gray-800">
       <h2 class="text-lg font-semibold text-white">
-        <%= @conversation.title || "New Conversation" %>
+        <%= if @conversation, do: @conversation.title || "New Conversation", else: "AI Financial Advisor" %>
       </h2>
     </div>
 

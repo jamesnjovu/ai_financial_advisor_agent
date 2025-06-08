@@ -24,7 +24,8 @@ defmodule AppWeb.ChatLive do
       |> assign(:pending_tasks, [])
       |> ok()
     else
-      {:ok, push_navigate(socket, to: ~p"/chat")}
+      push_navigate(socket, to: ~p"/chat")
+      |> ok()
     end
   end
 
@@ -33,16 +34,14 @@ defmodule AppWeb.ChatLive do
     user = socket.assigns.current_user
     conversations = Chat.list_conversations(user)
 
+    # Don't automatically create a conversation - just set it to nil
     conversation = case conversations do
-      [] ->
-        {:ok, conv} = Chat.create_conversation(user, %{title: "New Conversation"})
-        conv
-
-      [latest | _] ->
-        latest
+      [] -> nil
+      [latest | _] -> latest
     end
 
-    messages = Chat.get_conversation_messages(conversation)
+    # If we have a conversation, get its messages; otherwise empty list
+    messages = if conversation, do: Chat.get_conversation_messages(conversation), else: []
 
     socket
     |> assign(:sidebar_open, false)
@@ -59,25 +58,27 @@ defmodule AppWeb.ChatLive do
 
   @impl true
   def handle_event("toggle_sidebar", _params, socket) do
-    {:noreply, assign(socket, sidebar_open: !socket.assigns.sidebar_open)}
+    assign(socket, sidebar_open: !socket.assigns.sidebar_open)
+    |> noreply()
   end
 
   @impl true
   def handle_event("select_conversation", %{"id" => conversation_id}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/chat/#{conversation_id}")}
+    push_navigate(socket, to: ~p"/chat/#{conversation_id}")
+    |> noreply()
   end
 
   @impl true
   def handle_event("validate", %{"message" => %{"content" => content}}, socket) do
-    {:noreply, assign(socket, message_input: content)}
+    assign(socket, message_input: content)
+    |> noreply()
   end
 
   @impl true
   def handle_event("new_conversation", _params, socket) do
     user = socket.assigns.current_user
-    {:ok, conversation} = Chat.create_conversation(user, %{title: "New Conversation"})
-
-    {:noreply, push_navigate(socket, to: ~p"/chat/#{conversation.id}")}
+    push_navigate(socket, to: ~p"/chat")
+    |> noreply()
   end
 
   @impl true
@@ -92,7 +93,7 @@ defmodule AppWeb.ChatLive do
       |> assign(:sync_status, %{gmail: "syncing", hubspot: "syncing"})
       |> put_flash(:info, "Syncing your data...")
 
-    {:noreply, socket}
+    noreply(socket)
   end
 
   @impl true
@@ -101,11 +102,12 @@ defmodule AppWeb.ChatLive do
 
     case Tasks.create_user_instruction(user, instruction, ["email_received", "calendar_event_created"]) do
       {:ok, _instruction} ->
-        socket = put_flash(socket, :info, "Instruction added successfully!")
-        {:noreply, socket}
+        put_flash(socket, :info, "Instruction added successfully!")
+        |> noreply()
+
       {:error, _changeset} ->
-        socket = put_flash(socket, :error, "Failed to add instruction")
-        {:noreply, socket}
+        put_flash(socket, :error, "Failed to add instruction")
+        |> noreply()
     end
   end
 
@@ -113,7 +115,16 @@ defmodule AppWeb.ChatLive do
   def handle_event("send_message", %{"message" => %{"content" => content}}, socket) do
     if String.trim(content) != "" do
       user = socket.assigns.current_user
-      conversation = socket.assigns.conversation
+
+      # Create conversation if it doesn't exist (first message scenario)
+      conversation = case socket.assigns.conversation do
+        nil ->
+          {:ok, conv} = Chat.create_conversation(user, %{title: "New Conversation"})
+          conv
+
+        existing_conv ->
+          existing_conv
+      end
 
       # Create user message
       {:ok, user_message} = Chat.create_message(conversation, %{
@@ -124,23 +135,34 @@ defmodule AppWeb.ChatLive do
       # Update messages list
       messages = socket.assigns.messages ++ [user_message]
 
+      # Update conversations list if we just created a new conversation
+      conversations = if socket.assigns.conversation == nil do
+        Chat.list_conversations(user)
+      else
+        socket.assigns.conversations
+      end
+
       # Send to AI agent asynchronously
       send(self(), {:generate_ai_response, String.trim(content)})
 
-      {:noreply, assign(socket,
+      assign(socket,
+        conversation: conversation,
+        conversations: conversations,
         messages: messages,
         message_input: "",
         loading: true,
         error: nil
-      )}
+      )
+      |> noreply()
     else
-      {:noreply, socket}
+      noreply(socket)
     end
   end
 
   @impl true
   def handle_info({:generate_ai_response, message}, socket) do
-
+    # Your AI response logic here
+    {:noreply, socket}
   end
 
   defp get_sync_status(user) do

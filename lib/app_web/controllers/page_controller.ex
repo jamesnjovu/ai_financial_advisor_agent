@@ -2,8 +2,10 @@ defmodule AppWeb.PageController do
   use AppWeb, :controller
 
   def home(conn, _params) do
-    # The home page is often custom made,
-    # so skip the default app layout.
     render(conn, :home, layout: false)
+  end
+
+  def devtools(conn, _params) do
+    send_resp(conn, 404, "")
   end
 end
