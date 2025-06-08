@@ -7,6 +7,7 @@ defmodule App.BackgroundWorker do
   alias App.Tasks
   alias App.Accounts
   alias App.AI.KnowledgeBase
+  alias App.Webhooks.CalendarManager
 
   # Start the worker
   def start_link(opts) do
@@ -30,6 +31,7 @@ defmodule App.BackgroundWorker do
   def init(_opts) do
     # Schedule periodic task processing
     schedule_task_processing()
+    schedule_webhook_maintenance()
     {:ok, %{}}
   end
 
@@ -93,10 +95,28 @@ defmodule App.BackgroundWorker do
     {:noreply, state}
   end
 
+  def handle_info(:webhook_maintenance, state) do
+    # Clean up expired calendar webhook channels
+    spawn(fn ->
+      CalendarManager.cleanup_expired_channels()
+      CalendarManager.refresh_channel_subscriptions()
+    end)
+
+    # Schedule next maintenance
+    schedule_webhook_maintenance()
+
+    {:noreply, state}
+  end
+
   # Private functions
   defp schedule_task_processing do
     # Process tasks every 30 seconds
     Process.send_after(self(), :process_tasks, 30_000)
+  end
+
+  defp schedule_webhook_maintenance do
+    # Run webhook maintenance every hour
+    Process.send_after(self(), :webhook_maintenance, 60 * 60 * 1000)
   end
 
   defp sync_single_email(user, email_id) do

@@ -36,6 +36,20 @@ defmodule App.AI.Tools do
     end
   end
 
+  def execute_tool("setup_calendar_webhook", _params, %User{} = user) do
+    case App.Webhooks.CalendarManager.setup_calendar_webhook(user) do
+      {:ok, channel} ->
+        {:ok, %{
+          channel_id: channel.channel_id,
+          expires_at: channel.expiration,
+          message: "Calendar webhook setup successfully"
+        }}
+
+      {:error, reason} ->
+        {:error, "Failed to setup calendar webhook: #{inspect(reason)}"}
+    end
+  end
+
   def execute_tool("search_contacts", %{"query" => query}, %User{} = user) do
     # Search both HubSpot and knowledge base
     hubspot_results = case HubSpotClient.search_contacts(user, query) do
