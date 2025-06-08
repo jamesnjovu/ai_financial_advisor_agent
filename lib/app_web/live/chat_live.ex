@@ -36,19 +36,10 @@ defmodule AppWeb.ChatLive do
     user = socket.assigns.current_user
     conversations = Chat.list_conversations(user)
 
-    # Don't automatically create a conversation - just set it to nil
-    conversation = case conversations do
-      [] -> nil
-      [latest | _] -> latest
-    end
-
-    # If we have a conversation, get its messages; otherwise empty list
-    messages = if conversation, do: Chat.get_conversation_messages(conversation), else: []
-
     socket
     |> assign(:sidebar_open, false)
-    |> assign(:conversation, conversation)
-    |> assign(:messages, messages)
+    |> assign(:conversation, nil)
+    |> assign(:messages, [])
     |> assign(:conversations, conversations)
     |> assign(:message_input, "")
     |> assign(:loading, false)
