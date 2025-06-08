@@ -2,6 +2,8 @@ defmodule AppWeb.ChatLive do
   use AppWeb, :live_view
 
   alias App.Chat
+  alias App.AI.{Agent, KnowledgeBase}
+  alias App.Tasks
 
   @impl true
   def mount(%{"conversation_id" => conversation_id}, _session, socket) do
@@ -21,7 +23,7 @@ defmodule AppWeb.ChatLive do
       |> assign(:loading, false)
       |> assign(:error, nil)
       |> assign(:sync_status, get_sync_status(user))
-      |> assign(:pending_tasks, [])
+      |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
       |> ok()
     else
       push_navigate(socket, to: ~p"/chat")
@@ -52,7 +54,7 @@ defmodule AppWeb.ChatLive do
     |> assign(:loading, false)
     |> assign(:error, nil)
     |> assign(:sync_status, get_sync_status(user))
-    |> assign(:pending_tasks, [])
+    |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
     |> ok()
   end
 
@@ -97,21 +99,6 @@ defmodule AppWeb.ChatLive do
   end
 
   @impl true
-  def handle_event("add_instruction", %{"instruction" => instruction}, socket) do
-    user = socket.assigns.current_user
-
-    case Tasks.create_user_instruction(user, instruction, ["email_received", "calendar_event_created"]) do
-      {:ok, _instruction} ->
-        put_flash(socket, :info, "Instruction added successfully!")
-        |> noreply()
-
-      {:error, _changeset} ->
-        put_flash(socket, :error, "Failed to add instruction")
-        |> noreply()
-    end
-  end
-
-  @impl true
   def handle_event("send_message", %{"message" => %{"content" => content}}, socket) do
     if String.trim(content) != "" do
       user = socket.assigns.current_user
@@ -119,7 +106,7 @@ defmodule AppWeb.ChatLive do
       # Create conversation if it doesn't exist (first message scenario)
       conversation = case socket.assigns.conversation do
         nil ->
-          {:ok, conv} = Chat.create_conversation(user, %{title: "New Conversation"})
+          {:ok, conv} = Chat.create_conversation(user, %{title: generate_title(content)})
           conv
 
         existing_conv ->
@@ -143,7 +130,7 @@ defmodule AppWeb.ChatLive do
       end
 
       # Send to AI agent asynchronously
-      send(self(), {:generate_ai_response, String.trim(content)})
+      send(self(), {:generate_ai_response, conversation, String.trim(content)})
 
       assign(socket,
         conversation: conversation,
@@ -160,16 +147,71 @@ defmodule AppWeb.ChatLive do
   end
 
   @impl true
-  def handle_info({:generate_ai_response, message}, socket) do
-    # Your AI response logic here
-    {:noreply, socket}
+  def handle_info({:generate_ai_response, conversation, message}, socket) do
+    user = socket.assigns.current_user
+
+    case Agent.process_message(conversation, message, user) do
+      {:ok, ai_message} ->
+        # Refresh messages and update UI
+        updated_messages = Chat.get_conversation_messages(conversation)
+        updated_pending_tasks = Tasks.list_pending_tasks(user)
+
+        socket
+        |> assign(:messages, updated_messages)
+        |> assign(:pending_tasks, updated_pending_tasks)
+        |> assign(:loading, false)
+        |> assign(:error, nil)
+        |> noreply()
+
+      {:error, reason} ->
+        socket
+        |> assign(:loading, false)
+        |> assign(:error, reason)
+        |> noreply()
+    end
+  end
+
+  @impl true
+  def handle_info(:sync_data, socket) do
+    user = socket.assigns.current_user
+
+    # Perform the actual sync
+    case KnowledgeBase.sync_user_data(user) do
+      {:ok, results} ->
+        sync_status = get_sync_status(user)
+
+        socket
+        |> assign(:sync_status, sync_status)
+        |> put_flash(:info, "Data sync completed! Gmail: #{results.gmail.synced} emails, HubSpot: #{results.hubspot.contacts.synced} contacts")
+        |> noreply()
+
+      {:error, reason} ->
+        socket
+        |> assign(:sync_status, %{gmail: "error", hubspot: "error"})
+        |> put_flash(:error, "Sync failed: #{inspect(reason)}")
+        |> noreply()
+    end
   end
 
   defp get_sync_status(user) do
+    knowledge_status = KnowledgeBase.get_sync_status(user)
+
     %{
-      gmail: if(user.google_access_token, do: "connected", else: "not_connected"),
-      hubspot: if(user.hubspot_access_token, do: "connected", else: "not_connected")
+      gmail: if(user.google_access_token && knowledge_status.email_entries > 0, do: knowledge_status.status, else: "not_connected"),
+      hubspot: if(user.hubspot_access_token && knowledge_status.hubspot_entries > 0, do: knowledge_status.status, else: "not_connected")
     }
+  end
+
+  defp generate_title(content) do
+    # Generate a simple title from the first part of the message
+    content
+    |> String.slice(0, 50)
+    |> String.replace(~r/\s+/, " ")
+    |> String.trim()
+    |> case do
+         "" -> "New Conversation"
+         title -> title <> if String.length(content) > 50, do: "...", else: ""
+       end
   end
 
   defp format_date(datetime) do

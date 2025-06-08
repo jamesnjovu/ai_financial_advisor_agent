@@ -22,10 +22,58 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+let Hooks = {}
+
+// Auto-resize textarea hook
+Hooks.AutoResize = {
+  mounted() {
+    this.el.addEventListener("input", () => {
+      // Reset height to auto to get the correct scrollHeight
+      this.el.style.height = "auto"
+      // Set height to scrollHeight (up to max-height)
+      this.el.style.height = Math.min(this.el.scrollHeight, 120) + "px"
+    })
+
+    // Handle Enter key to submit (Shift+Enter for new line)
+    this.el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault()
+        // Find and trigger the form submission
+        const form = this.el.closest("form")
+        if (form) {
+          const event = new Event("submit", { bubbles: true, cancelable: true })
+          form.dispatchEvent(event)
+        }
+      }
+    })
+  }
+}
+
+// Scroll to bottom hook for messages
+Hooks.ScrollToBottom = {
+  mounted() {
+    this.scrollToBottom()
+  },
+
+  updated() {
+    this.scrollToBottom()
+  },
+
+  scrollToBottom() {
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+      this.el.scrollTop = this.el.scrollHeight
+    }, 10)
+  }
+}
+
+// Update the LiveSocket initialization to include hooks
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits

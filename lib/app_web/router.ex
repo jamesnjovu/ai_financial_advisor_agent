@@ -49,6 +49,16 @@ defmodule AppWeb.Router do
     end
   end
 
+  # Webhook endpoints
+  scope "/webhooks", AppWeb do
+    pipe_through :api
+
+    post "/gmail", WebhookController, :gmail_webhook
+    post "/hubspot", WebhookController, :hubspot_webhook
+    post "/calendar", WebhookController, :calendar_webhook
+    get "/health", WebhookController, :health
+  end
+
   if Application.compile_env(:app, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
