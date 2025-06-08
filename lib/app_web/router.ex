@@ -59,4 +59,11 @@ defmodule AppWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
+
+  scope "/", AppWeb do
+    pipe_through :browser
+
+    delete "/auth/logout", AuthController, :logout
+    get "/.well-known/appspecific/com.chrome.devtools.json", PageController, :devtools
+  end
 end
