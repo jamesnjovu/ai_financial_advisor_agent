@@ -10,6 +10,18 @@ defmodule App.Chat do
   }
   alias App.Accounts.User
 
+  def get_message(id) do
+    Message
+    |> where([m], m.id == ^id)
+    |> Repo.one()
+  end
+
+  def update_message(%Message{} = message, attrs) do
+    message
+    |> Message.changeset(attrs)
+    |> Repo.update()
+  end
+
   def list_conversations(%User{} = user) do
     Conversation
     |> where([c], c.user_id == ^user.id)

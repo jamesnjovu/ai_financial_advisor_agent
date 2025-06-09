@@ -1,0 +1,61 @@
+/* Professional Chat Animations */
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes typingDot {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+.message-enter {
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+.typing-indicator .dot:nth-child(1) {
+    animation: typingDot 1.4s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation: typingDot 1.4s infinite 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation: typingDot 1.4s infinite 0.4s;
+}
+
+/* Glassmorphism effects */
+.glass-effect {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Smooth scrollbar */
+.messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: rgba(55, 65, 81, 0.1);
+    border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+    border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.7);
+}
