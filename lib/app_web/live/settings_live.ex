@@ -6,12 +6,14 @@ defmodule AppWeb.SettingsLive do
     user = socket.assigns.current_user
     instructions_count = App.Tasks.count_user_instructions(user)
     active_instructions_count = App.Tasks.count_active_instructions(user)
+    recent_instructions = App.Tasks.get_recent_instructions(user, 3)
 
     socket
     |> assign(hubspot_connected: !is_nil(user.hubspot_access_token))
     |> assign(gmail_connected: !is_nil(user.google_access_token))
     |> assign(instructions_count: instructions_count)
     |> assign(active_instructions_count: active_instructions_count)
+    |> assign(recent_instructions: recent_instructions)
     |> assign(:page_title, "Settings")
     |> ok()
   end

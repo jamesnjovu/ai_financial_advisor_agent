@@ -3,6 +3,11 @@ defmodule App.Auth.GoogleOAuth do
   Google OAuth2 client for Gmail and Calendar access with enhanced permissions
   """
 
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
+
   @google_auth_url "https://accounts.google.com/o/oauth2/v2/auth"
   @google_token_url "https://oauth2.googleapis.com/token"
   @google_userinfo_url "https://www.googleapis.com/oauth2/v2/userinfo"
@@ -50,7 +55,7 @@ defmodule App.Auth.GoogleOAuth do
 
     case HTTPoison.post(@google_token_url, Jason.encode!(body), [
       {"Content-Type", "application/json"}
-    ]) do
+    ], @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -74,7 +79,7 @@ defmodule App.Auth.GoogleOAuth do
 
     case HTTPoison.post(@google_token_url, Jason.encode!(body), [
       {"Content-Type", "application/json"}
-    ]) do
+    ], @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -89,7 +94,7 @@ defmodule App.Auth.GoogleOAuth do
   def get_user_info(access_token) do
     headers = [{"Authorization", "Bearer #{access_token}"}]
 
-    case HTTPoison.get(@google_userinfo_url, headers) do
+    case HTTPoison.get(@google_userinfo_url, headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -121,7 +126,7 @@ defmodule App.Auth.GoogleOAuth do
   defp test_token(token) do
     headers = [{"Authorization", "Bearer #{token}"}]
 
-    case HTTPoison.get(@google_userinfo_url, headers) do
+    case HTTPoison.get(@google_userinfo_url, headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200}} -> {:ok, :valid}
       _ -> {:error, :invalid}
     end
@@ -135,7 +140,7 @@ defmodule App.Auth.GoogleOAuth do
 
     body = URI.encode_query(%{token: token})
 
-    case HTTPoison.post(url, body, headers, [timeout: 5000]) do
+    case HTTPoison.post(url, body, headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         {:ok, :revoked}
 

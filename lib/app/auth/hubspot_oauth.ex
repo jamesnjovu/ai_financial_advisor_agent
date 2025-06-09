@@ -3,6 +3,11 @@ defmodule App.Auth.HubSpotOAuth do
   HubSpot OAuth2 client
   """
 
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
+
   @hubspot_auth_url "https://app.hubspot.com/oauth/authorize"
   @hubspot_token_url "https://api.hubapi.com/oauth/v1/token"
 
@@ -43,7 +48,7 @@ defmodule App.Auth.HubSpotOAuth do
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
-    case HTTPoison.post(@hubspot_token_url, URI.encode_query(body), headers) do
+    case HTTPoison.post(@hubspot_token_url, URI.encode_query(body), headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -67,7 +72,7 @@ defmodule App.Auth.HubSpotOAuth do
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
-    case HTTPoison.post(@hubspot_token_url, URI.encode_query(body), headers) do
+    case HTTPoison.post(@hubspot_token_url, URI.encode_query(body), headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -82,7 +87,7 @@ defmodule App.Auth.HubSpotOAuth do
   def get_account_info(access_token) do
     headers = [{"Authorization", "Bearer #{access_token}"}]
 
-    case HTTPoison.get("https://api.hubapi.com/account-info/v3/details", headers) do
+    case HTTPoison.get("https://api.hubapi.com/account-info/v3/details", headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
 
@@ -120,7 +125,7 @@ defmodule App.Auth.HubSpotOAuth do
   defp test_token(token) do
     headers = [{"Authorization", "Bearer #{token}"}]
 
-    case HTTPoison.get("https://api.hubapi.com/account-info/v3/details", headers) do
+    case HTTPoison.get("https://api.hubapi.com/account-info/v3/details", headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200}} -> {:ok, :valid}
       _ -> {:error, :invalid}
     end
@@ -139,7 +144,7 @@ defmodule App.Auth.HubSpotOAuth do
            "https://api.hubapi.com/oauth/v1/refresh-tokens/#{token}",
            URI.encode_query(body),
            headers,
-           [timeout: 5000]
+           @options
          ) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         {:ok, :revoked}

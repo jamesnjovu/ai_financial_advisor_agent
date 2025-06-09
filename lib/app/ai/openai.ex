@@ -2,6 +2,10 @@ defmodule App.AI.OpenAI do
   @moduledoc """
   OpenAI API integration for chat completions and embeddings
   """
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
 
   @base_url "https://api.openai.com/v1"
 
@@ -27,7 +31,7 @@ defmodule App.AI.OpenAI do
       {"Content-Type", "application/json"}
     ]
 
-    case HTTPoison.post("#{@base_url}/chat/completions", Jason.encode!(payload), headers) do
+    case HTTPoison.post("#{@base_url}/chat/completions", Jason.encode!(payload), headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, Jason.decode!(body)}
 
@@ -52,7 +56,7 @@ defmodule App.AI.OpenAI do
       {"Content-Type", "application/json"}
     ]
 
-    case HTTPoison.post("#{@base_url}/embeddings", Jason.encode!(payload), headers) do
+    case HTTPoison.post("#{@base_url}/embeddings", Jason.encode!(payload), headers, @options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         %{"data" => [%{"embedding" => embedding}]} = Jason.decode!(body)
         {:ok, embedding}

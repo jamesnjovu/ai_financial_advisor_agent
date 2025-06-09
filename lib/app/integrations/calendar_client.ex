@@ -3,6 +3,11 @@ defmodule App.Integrations.CalendarClient do
   Google Calendar API client for managing calendar events
   """
 
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
+
   alias App.Auth.GoogleOAuth
 
   @base_url "https://www.googleapis.com/calendar/v3"
@@ -26,7 +31,7 @@ defmodule App.Integrations.CalendarClient do
 
         url = "#{@base_url}/calendars/#{calendar_id}/events?#{URI.encode_query(query_params)}"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -49,7 +54,7 @@ defmodule App.Integrations.CalendarClient do
 
         url = "#{@base_url}/calendars/#{calendar_id}/events"
 
-        case HTTPoison.post(url, Jason.encode!(event_data), headers) do
+        case HTTPoison.post(url, Jason.encode!(event_data), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -72,7 +77,7 @@ defmodule App.Integrations.CalendarClient do
 
         url = "#{@base_url}/calendars/#{calendar_id}/events/#{event_id}"
 
-        case HTTPoison.put(url, Jason.encode!(event_data), headers) do
+        case HTTPoison.put(url, Jason.encode!(event_data), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->

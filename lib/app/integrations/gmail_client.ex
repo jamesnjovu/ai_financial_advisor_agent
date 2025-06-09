@@ -3,6 +3,11 @@ defmodule App.Integrations.GmailClient do
   Gmail API client for reading and sending emails
   """
 
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
+
   alias App.Auth.GoogleOAuth
 
   @base_url "https://gmail.googleapis.com/gmail/v1"
@@ -19,7 +24,7 @@ defmodule App.Integrations.GmailClient do
 
         url = "#{@base_url}/users/me/messages?#{URI.encode_query(query_params)}"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -39,7 +44,7 @@ defmodule App.Integrations.GmailClient do
         headers = [{"Authorization", "Bearer #{token}"}]
         url = "#{@base_url}/users/me/messages/#{message_id}?format=full"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -70,7 +75,7 @@ defmodule App.Integrations.GmailClient do
 
         url = "#{@base_url}/users/me/messages/send"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -98,7 +103,7 @@ defmodule App.Integrations.GmailClient do
 
         url = "#{@base_url}/users/me/watch"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->

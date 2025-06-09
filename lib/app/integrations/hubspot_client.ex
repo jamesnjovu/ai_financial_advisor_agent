@@ -3,6 +3,11 @@ defmodule App.Integrations.HubSpotClient do
   Enhanced HubSpot API client for CRM operations
   """
 
+  @options [
+    timeout: 2_000_000,
+    recv_timeout: 2_000_000
+  ]
+
   alias App.Auth.HubSpotOAuth
 
   @base_url "https://api.hubapi.com"
@@ -21,7 +26,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/contacts?#{URI.encode_query(query_params)}"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -48,7 +53,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/contacts"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
             {:ok, Jason.decode!(body)}
 
@@ -116,7 +121,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/contacts/#{contact_id}"
 
-        case HTTPoison.patch(url, Jason.encode!(payload), headers) do
+        case HTTPoison.patch(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -145,7 +150,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/contacts/search"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -181,7 +186,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/notes"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -201,7 +206,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v4/objects/contacts/#{contact_id}/associations/notes"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -228,7 +233,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/deals?#{URI.encode_query(query_params)}"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -255,7 +260,7 @@ defmodule App.Integrations.HubSpotClient do
 
         url = "#{@base_url}/crm/v3/objects/deals"
 
-        case HTTPoison.post(url, Jason.encode!(payload), headers) do
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
@@ -275,7 +280,7 @@ defmodule App.Integrations.HubSpotClient do
         headers = [{"Authorization", "Bearer #{token}"}]
         url = "#{@base_url}/crm/v3/objects/contacts/#{contact_id}"
 
-        case HTTPoison.get(url, headers) do
+        case HTTPoison.get(url, headers, @options) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             {:ok, Jason.decode!(body)}
           {:ok, response} ->
