@@ -4,10 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title suffix=" · Phoenix Framework">
-      <%= assigns[:page_title] || "App" %>
+    <.live_title suffix=" · Financial Advisor">
+      <%= assigns[:page_title] || "AI" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link rel="icon" href={~p"/images/logo.svg"} sizes="32x32" />
+    <link rel="icon" href={~p"/images/logo.svg"} sizes="192x192" />
+    <link rel="apple-touch-icon" href={~p"/images/logo.svg"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>

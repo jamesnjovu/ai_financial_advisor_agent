@@ -26,7 +26,8 @@ defmodule App.AI.Agent do
 
     # Call OpenAI with tool calling enabled
     case OpenAI.chat_completion(conversation_messages, tools: get_available_tools()) do
-      {:ok, %{"choices" => [%{"message" => ai_message}]} = response} ->
+      {:ok, %{"choices" => [%{"message" => ai_message}]} = _response} ->
+        IO.inspect ai_message, label: :ai_message
         handle_ai_response(conversation, ai_message, user)
 
       {:error, reason} ->
@@ -51,6 +52,26 @@ defmodule App.AI.Agent do
       end
     )
 
+#    """
+#    You are an AI Financial Advisor assistant. You help manage client relationships through Gmail, Google Calendar, and HubSpot CRM.
+#
+#    AVAILABLE CONTEXT:
+#    #{context_text}
+#
+#    ACTIVE USER INSTRUCTIONS:
+#    #{instructions_text}
+#
+#    CAPABILITIES:
+#    - Search emails and contacts to answer questions about clients
+#    - Schedule meetings by checking calendar availability and sending emails
+#    - Create and update HubSpot contacts
+#    - Send emails on behalf of the user
+#    - Create tasks and reminders
+#    - Set up ongoing automation instructions
+#
+#    Always be helpful, professional, and proactive. When scheduling meetings or contacting people, use the available tools to actually perform the actions.
+#    """
+
     """
     You are an AI Financial Advisor assistant. You help manage client relationships through Gmail, Google Calendar, and HubSpot CRM.
 
@@ -67,6 +88,12 @@ defmodule App.AI.Agent do
     - Send emails on behalf of the user
     - Create tasks and reminders
     - Set up ongoing automation instructions
+
+    IMPORTANT FOR SCHEDULING:
+    - When scheduling meetings, if the user mentions specific times, include them as preferred_times in ISO8601 format
+    - The system will check availability for preferred times and fall back to finding available slots if needed
+    - Always confirm the ACTUAL scheduled time in your response, not just the requested time
+    - Current date/time: #{DateTime.utc_now() |> DateTime.to_iso8601()}
 
     Always be helpful, professional, and proactive. When scheduling meetings or contacting people, use the available tools to actually perform the actions.
     """
@@ -115,31 +142,21 @@ defmodule App.AI.Agent do
       # Build follow-up message with tool results
       results_context = build_tool_results_context(tool_calls, tool_results)
 
-      follow_up_messages = build_conversation_messages(
-                             Chat.get_conversation_messages(conversation),
-                             build_system_message([], [])
-                           ) ++ [
-                             %{
-                               role: "user",
-                               content: "Tool results: #{
-                                 results_context
-                               }. Please provide a summary of what was accomplished."
-                             }
-                           ]
+      follow_up_messages =
+        build_conversation_messages(
+          Chat.get_conversation_messages(conversation),
+          build_system_message([], [])
+        ) ++ [
+          %{
+            role: "user",
+            content: "Tool results: #{
+              results_context
+            }. Please provide a summary of what was accomplished."
+          }
+        ]
 
       case OpenAI.chat_completion(follow_up_messages) do
-        {
-          :ok,
-          %{
-            "choices" => [
-              %{
-                "message" => %{
-                  "content" => summary
-                }
-              }
-            ]
-          }
-        } ->
+        {:ok, %{"choices" => [%{"message" => %{"content" => summary}}]}} ->
           {:ok, summary_msg} = Chat.create_message(
             conversation,
             %{
@@ -264,10 +281,8 @@ defmodule App.AI.Agent do
               },
               preferred_times: %{
                 type: "array",
-                items: %{
-                  type: "string"
-                },
-                description: "Preferred time slots"
+                items: %{type: "string", format: "date-time"},
+                description: "Preferred meeting times in ISO8601 format (e.g., '2024-06-10T14:00:00Z'). If provided, these will be checked for availability. If none provided, system will find available slots automatically."
               }
             },
             required: ["contact_email", "subject"]

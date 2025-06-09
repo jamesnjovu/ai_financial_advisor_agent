@@ -4,10 +4,10 @@ defmodule AppWeb.SettingsLive do
   @impl true
   def mount(_params, _session, socket) do
     user = socket.assigns.current_user
-    assign(socket,
-      hubspot_connected: !is_nil(user.hubspot_access_token),
-      gmail_connected: !is_nil(user.google_access_token)
-    )
+    socket
+    |> assign(hubspot_connected: !is_nil(user.hubspot_access_token))
+    |> assign(gmail_connected: !is_nil(user.google_access_token))
+    |> assign(:page_title, "Settings")
     |> ok()
   end
 

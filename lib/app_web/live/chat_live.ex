@@ -15,6 +15,7 @@ defmodule AppWeb.ChatLive do
       conversations = Chat.list_conversations(user)
 
       socket
+      |> assign(:page_title, "Chat")
       |> assign(:sidebar_open, false)
       |> assign(:conversation, conversation)
       |> assign(:messages, messages)
@@ -37,6 +38,7 @@ defmodule AppWeb.ChatLive do
     conversations = Chat.list_conversations(user)
 
     socket
+    |> assign(:page_title, "Chat")
     |> assign(:sidebar_open, false)
     |> assign(:conversation, nil)
     |> assign(:messages, [])
@@ -72,21 +74,6 @@ defmodule AppWeb.ChatLive do
     user = socket.assigns.current_user
     push_navigate(socket, to: ~p"/chat")
     |> noreply()
-  end
-
-  @impl true
-  def handle_event("sync_data", _params, socket) do
-    user = socket.assigns.current_user
-
-    # Start background sync
-    send(self(), :sync_data)
-
-    socket =
-      socket
-      |> assign(:sync_status, %{gmail: "syncing", hubspot: "syncing"})
-      |> put_flash(:info, "Syncing your data...")
-
-    noreply(socket)
   end
 
   @impl true
@@ -158,28 +145,6 @@ defmodule AppWeb.ChatLive do
         socket
         |> assign(:loading, false)
         |> assign(:error, reason)
-        |> noreply()
-    end
-  end
-
-  @impl true
-  def handle_info(:sync_data, socket) do
-    user = socket.assigns.current_user
-
-    # Perform the actual sync
-    case KnowledgeBase.sync_user_data(user) do
-      {:ok, results} ->
-        sync_status = get_sync_status(user)
-
-        socket
-        |> assign(:sync_status, sync_status)
-        |> put_flash(:info, "Data sync completed! Gmail: #{results.gmail.synced} emails, HubSpot: #{results.hubspot.contacts.synced} contacts")
-        |> noreply()
-
-      {:error, reason} ->
-        socket
-        |> assign(:sync_status, %{gmail: "error", hubspot: "error"})
-        |> put_flash(:error, "Sync failed: #{inspect(reason)}")
         |> noreply()
     end
   end
