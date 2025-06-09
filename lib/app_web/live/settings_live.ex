@@ -16,4 +16,15 @@ defmodule AppWeb.SettingsLive do
     redirect(socket, to: ~p"/auth/hubspot")
     |> noreply()
   end
+
+  @impl true
+  def handle_event("disconnect_hubspot", _params, socket) do
+    App.Accounts.update_user(socket.assigns.current_user, %{
+      hubspot_access_token: nil,
+      hubspot_refresh_token: nil,
+      hubspot_portal_id: nil
+    })
+    assign(socket, hubspot_connected: false)
+    |> noreply()
+  end
 end
