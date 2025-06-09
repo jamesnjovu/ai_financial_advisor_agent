@@ -115,13 +115,11 @@ defmodule App.Integrations.GmailClient do
     list_messages(user, query: query)
   end
 
-  # Fixed email building function - the key issue was here
   defp build_email(user, to, subject, body, opts) do
     from = opts[:from] || user.email || "me"
     cc = opts[:cc]
     bcc = opts[:bcc]
 
-    # Build headers properly with proper line endings
     headers = [
       "To: #{to}",
       "From: #{from}",
@@ -130,7 +128,6 @@ defmodule App.Integrations.GmailClient do
       "Content-Type: text/plain; charset=utf-8"
     ]
 
-    # Add optional headers if present
     headers = if cc, do: headers ++ ["Cc: #{cc}"], else: headers
     headers = if bcc, do: headers ++ ["Bcc: #{bcc}"], else: headers
 

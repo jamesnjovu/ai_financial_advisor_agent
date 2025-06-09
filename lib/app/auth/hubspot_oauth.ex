@@ -55,7 +55,6 @@ defmodule App.Auth.HubSpotOAuth do
     end
   end
 
-  # Add refresh token functionality
   def refresh_token(refresh_token) do
     config = Application.get_env(:app, :hubspot_oauth)
 
@@ -92,7 +91,7 @@ defmodule App.Auth.HubSpotOAuth do
     end
   end
 
-  # Add function to get valid token with refresh capability
+  # get valid token with refresh capability
   def get_valid_token(%{hubspot_access_token: token, hubspot_refresh_token: refresh_token} = user) do
     # Try current token first
     case test_token(token) do

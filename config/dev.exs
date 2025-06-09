@@ -1,16 +1,23 @@
 import Config
-
 # Configure your database
-config :app, App.Repo,
-  username: "postgres",
-  password: "Qwerty12",
-  hostname: "localhost",
-  database: "ai_financial_advisor_agent",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10,
-  types: App.PostgrexTypes
-
+if database_url = System.get_env("DATABASE_URL") do
+  config :app, App.Repo,
+         # ssl: true,
+         url: database_url,
+         pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+         socket_options: [],
+         types: App.PostgrexTypes
+else
+  config :app, App.Repo,
+         username: "postgres",
+         password: "Qwerty12",
+         hostname: "localhost",
+         database: "ai_financial_advisor_agent",
+         stacktrace: true,
+         show_sensitive_data_on_connection_error: true,
+         pool_size: 10,
+         types: App.PostgrexTypes
+end
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

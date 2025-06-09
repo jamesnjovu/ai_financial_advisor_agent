@@ -268,7 +268,7 @@ defmodule App.Integrations.HubSpotClient do
     end
   end
 
-  # Add a function to get a specific contact by ID (useful for webhooks)
+  # get a specific contact by ID (useful for webhooks)
   def get_contact(user, contact_id) do
     case HubSpotOAuth.get_valid_token(user) do
       {:ok, token} ->
@@ -292,7 +292,7 @@ defmodule App.Integrations.HubSpotClient do
     email = contact_data["email"] || contact_data[:email]
 
     if email do
-      # First, search for existing contact by email
+      # search for existing contact by email
       case search_contacts(user, email) do
         {:ok, %{"results" => [existing_contact | _]}} ->
           # Contact exists, update it

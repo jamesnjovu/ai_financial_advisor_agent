@@ -153,8 +153,6 @@ defmodule App.AI.Tools do
     end
   end
 
-  # Add these helper functions to the same file:
-
   defp parse_datetime(datetime_string) when is_binary(datetime_string) do
     case DateTime.from_iso8601(datetime_string) do
       {:ok, datetime, _} -> datetime
