@@ -27,7 +27,12 @@ config :app, AppWeb.Endpoint,
     layout: false
   ],
   pubsub_server: App.PubSub,
-  live_view: [signing_salt: "k3f1zvC6"]
+  live_view: [signing_salt: "k3f1zvC6"],
+  check_origin: [
+    "//66.42.87.179:4001",
+    "//ai-financial-advisor-agent.onrender.com",
+    "//aifinancialagent.sms.probasegroup.com",
+  ]
 
 
 # OAuth configs
