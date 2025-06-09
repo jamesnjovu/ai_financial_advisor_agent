@@ -10,6 +10,8 @@ defmodule App.Auth.GoogleOAuth do
   def authorize_url(state) do
     config = Application.get_env(:app, :google_oauth)
 
+    IO.inspect config, label: :config
+    
     params = %{
       client_id: config[:client_id],
       redirect_uri: config[:redirect_uri],
