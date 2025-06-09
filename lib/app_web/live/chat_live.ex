@@ -175,15 +175,26 @@ defmodule AppWeb.ChatLive do
       %NaiveDateTime{} = naive_dt ->
         naive_dt
         |> NaiveDateTime.to_date()
-        |> Date.to_string()
+        |> format_date_string()
 
       %DateTime{} = dt ->
         dt
         |> DateTime.to_date()
-        |> Date.to_string()
+        |> format_date_string()
 
       _ ->
         "Unknown date"
+    end
+  end
+
+  defp format_date_string(date) do
+    today = Date.utc_today()
+    yesterday = Date.add(today, -1)
+
+    cond do
+      Date.compare(date, today) == :eq -> "Today"
+      Date.compare(date, yesterday) == :eq -> "Yesterday"
+      true -> Calendar.strftime(date, "%b %d")
     end
   end
 
@@ -193,16 +204,21 @@ defmodule AppWeb.ChatLive do
         naive_dt
         |> NaiveDateTime.truncate(:second)
         |> NaiveDateTime.to_time()
-        |> Time.to_string()
+        |> format_time_string()
 
       %DateTime{} = dt ->
         dt
         |> DateTime.truncate(:second)
         |> DateTime.to_time()
-        |> Time.to_string()
+        |> format_time_string()
 
       _ ->
         "Unknown time"
     end
   end
+
+  defp format_time_string(time) do
+    Calendar.strftime(time, "%I:%M %p")
+  end
+
 end
