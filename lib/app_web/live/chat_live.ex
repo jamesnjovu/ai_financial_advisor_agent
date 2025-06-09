@@ -4,6 +4,7 @@ defmodule AppWeb.ChatLive do
   alias App.Chat
   alias App.AI.{Agent, KnowledgeBase}
   alias App.Tasks
+  import Ecto.Query
 
   @impl true
   def mount(%{"conversation_id" => conversation_id}, _session, socket) do
@@ -24,6 +25,7 @@ defmodule AppWeb.ChatLive do
       |> assign(:loading, false)
       |> assign(:error, nil)
       |> assign(:sync_status, get_sync_status(user))
+      |> assign(:knowledge_stats, get_knowledge_stats(user))
       |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
       |> ok()
     else
@@ -47,6 +49,7 @@ defmodule AppWeb.ChatLive do
     |> assign(:loading, false)
     |> assign(:error, nil)
     |> assign(:sync_status, get_sync_status(user))
+    |> assign(:knowledge_stats, get_knowledge_stats(user))
     |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
     |> ok()
   end
@@ -221,4 +224,14 @@ defmodule AppWeb.ChatLive do
     Calendar.strftime(time, "%I:%M %p")
   end
 
+  defp get_knowledge_stats(user) do
+    user_instruction =
+      from k in App.Tasks.UserInstruction,
+           where: k.user_id == ^user.id,
+           select: count(k.id)
+
+    %{
+      user_instruction: App.Repo.one(user_instruction)
+    }
+  end
 end

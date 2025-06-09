@@ -201,4 +201,24 @@ defmodule App.Tasks do
 
     length(instructions)
   end
+
+  def count_user_instructions(%User{} = user) do
+    UserInstruction
+    |> where([i], i.user_id == ^user.id)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  def count_active_instructions(%User{} = user) do
+    UserInstruction
+    |> where([i], i.user_id == ^user.id and i.active == true)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  def get_recent_instructions(%User{} = user, limit \\ 5) do
+    UserInstruction
+    |> where([i], i.user_id == ^user.id)
+    |> order_by([i], desc: i.inserted_at)
+    |> limit(^limit)
+    |> Repo.all()
+  end
 end
