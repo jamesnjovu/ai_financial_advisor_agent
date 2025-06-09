@@ -41,6 +41,7 @@ defmodule AppWeb.Router do
     # Hubspot auth
     get "/auth/hubspot", AuthController, :connect_hubspot
     get "/auth/hubspot/callback", AuthController, :hubspot_callback
+    delete "/auth/logout", AuthController, :logout
 
     live_session :authenticated, on_mount: {Auth, :ensure_authenticated} do
       live "/chat", ChatLive

@@ -10,8 +10,6 @@ defmodule App.Auth.GoogleOAuth do
   def authorize_url(state) do
     config = Application.get_env(:app, :google_oauth)
 
-    IO.inspect config, label: :config
-    
     params = %{
       client_id: config[:client_id],
       redirect_uri: config[:redirect_uri],
@@ -127,5 +125,36 @@ defmodule App.Auth.GoogleOAuth do
       {:ok, %HTTPoison.Response{status_code: 200}} -> {:ok, :valid}
       _ -> {:error, :invalid}
     end
+  end
+
+  def revoke_token(%{google_access_token: token} = user) when not is_nil(token) do
+    # Google's token revocation endpoint
+    url = "https://oauth2.googleapis.com/revoke"
+
+    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+
+    body = URI.encode_query(%{token: token})
+
+    case HTTPoison.post(url, body, headers, [timeout: 5000]) do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        {:ok, :revoked}
+
+      {:ok, %HTTPoison.Response{status_code: 400, body: body}} ->
+        # Token might be already invalid/expired
+        case Jason.decode(body) do
+          {:ok, %{"error" => "invalid_token"}} -> {:ok, :already_revoked}
+          _ -> {:error, "Google revocation failed: #{body}"}
+        end
+
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        {:error, "Google revocation failed #{status}: #{body}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Network error: #{reason}"}
+    end
+  end
+
+  def revoke_token(_user) do
+    {:error, :no_token_to_revoke}
   end
 end

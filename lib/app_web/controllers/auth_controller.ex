@@ -77,6 +77,21 @@ defmodule AppWeb.AuthController do
   end
 
   def logout(conn, _params) do
+    user = get_current_user(conn)
+
+    # Revoke Google token if user is authenticated
+    if user do
+      case App.Auth.GoogleOAuth.revoke_token(user) do
+        {:ok, _} ->
+          # Token successfully revoked
+          :ok
+        {:error, reason} ->
+          # Log the error but don't fail logout
+          require Logger
+          Logger.warning("Failed to revoke Google token during logout: #{reason}")
+      end
+    end
+
     conn
     |> clear_session()
     |> put_flash(:info, "Logged out successfully")

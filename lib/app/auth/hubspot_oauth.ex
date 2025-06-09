@@ -112,6 +112,7 @@ defmodule App.Auth.HubSpotOAuth do
     end
   end
 
+
   def get_valid_token(_user) do
     {:error, :no_hubspot_token}
   end
@@ -123,5 +124,39 @@ defmodule App.Auth.HubSpotOAuth do
       {:ok, %HTTPoison.Response{status_code: 200}} -> {:ok, :valid}
       _ -> {:error, :invalid}
     end
+  end
+
+  def revoke_token(%{hubspot_access_token: token} = user) when not is_nil(token) do
+    config = Application.get_env(:app, :hubspot_oauth)
+
+    body = %{
+      token: token
+    }
+
+    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+
+    case HTTPoison.post(
+           "https://api.hubapi.com/oauth/v1/refresh-tokens/#{token}",
+           URI.encode_query(body),
+           headers,
+           [timeout: 5000]
+         ) do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        {:ok, :revoked}
+
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        # Token already invalid/revoked
+        {:ok, :already_revoked}
+
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        {:error, "HubSpot revocation failed #{status}: #{body}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Network error: #{reason}"}
+    end
+  end
+
+  def revoke_token(_user) do
+    {:error, :no_token_to_revoke}
   end
 end

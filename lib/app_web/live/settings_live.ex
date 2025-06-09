@@ -19,12 +19,25 @@ defmodule AppWeb.SettingsLive do
 
   @impl true
   def handle_event("disconnect_hubspot", _params, socket) do
-    App.Accounts.update_user(socket.assigns.current_user, %{
+    user = socket.assigns.current_user
+    App.Accounts.update_user(user, %{
       hubspot_access_token: nil,
       hubspot_refresh_token: nil,
       hubspot_portal_id: nil
     })
-    assign(socket, hubspot_connected: false)
-    |> noreply()
+    case App.Auth.HubSpotOAuth.revoke_token(user) do
+      {:ok, _} ->
+        socket
+        |> assign(hubspot_connected: false)
+        |> put_flash(:info, "HubSpot disconnected successfully")
+        |> noreply()
+
+      {:error, reason} ->
+        # Token revocation failed, but still remove from database
+        socket
+        |> assign(hubspot_connected: false)
+        |> put_flash(:warning, "HubSpot disconnected, but token revocation failed: #{reason}")
+        |> noreply()
+    end
   end
 end
