@@ -13,17 +13,20 @@ defmodule AppWeb.ChatLive do
 
     if conversation do
       messages = Chat.get_conversation_messages(conversation)
+      conversations = Chat.list_conversations(user)
 
       socket
       |> assign(:page_title, "Chat")
       |> assign(:sidebar_open, false)
       |> assign(:conversation, conversation)
       |> assign(:messages, messages)
+      |> assign(:conversations, conversations)
       |> assign(:message_input, "")
       |> assign(:loading, false)
       |> assign(:error, nil)
-      |> assign(:current_page, :chat)
-      |> assign(:current_conversation_id, conversation.id)
+      |> assign(:sync_status, get_sync_status(user))
+      |> assign(:knowledge_stats, get_knowledge_stats(user))
+      |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
       |> ok()
     else
       push_navigate(socket, to: ~p"/chat")
@@ -33,33 +36,32 @@ defmodule AppWeb.ChatLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_user
+    conversations = Chat.list_conversations(user)
+
     socket
     |> assign(:page_title, "Chat")
     |> assign(:sidebar_open, false)
     |> assign(:conversation, nil)
     |> assign(:messages, [])
+    |> assign(:conversations, conversations)
     |> assign(:message_input, "")
     |> assign(:loading, false)
     |> assign(:error, nil)
-    |> assign(:current_page, :chat)
-    |> assign(:current_conversation_id, nil)
+    |> assign(:sync_status, get_sync_status(user))
+    |> assign(:knowledge_stats, get_knowledge_stats(user))
+    |> assign(:pending_tasks, Tasks.list_pending_tasks(user))
     |> ok()
   end
 
   @impl true
-  def handle_info({:sidebar_toggle, open}, socket) do
-    assign(socket, sidebar_open: open)
+  def handle_event("toggle_sidebar", _params, socket) do
+    assign(socket, sidebar_open: !socket.assigns.sidebar_open)
     |> noreply()
   end
 
   @impl true
-  def handle_info(:new_conversation, socket) do
-    push_navigate(socket, to: ~p"/chat")
-    |> noreply()
-  end
-
-  @impl true
-  def handle_info({:select_conversation, conversation_id}, socket) do
+  def handle_event("select_conversation", %{"id" => conversation_id}, socket) do
     push_navigate(socket, to: ~p"/chat/#{conversation_id}")
     |> noreply()
   end
@@ -67,6 +69,13 @@ defmodule AppWeb.ChatLive do
   @impl true
   def handle_event("validate", %{"message" => %{"content" => content}}, socket) do
     assign(socket, message_input: content)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("new_conversation", _params, socket) do
+    user = socket.assigns.current_user
+    push_navigate(socket, to: ~p"/chat")
     |> noreply()
   end
 
@@ -94,16 +103,23 @@ defmodule AppWeb.ChatLive do
       # Update messages list
       messages = socket.assigns.messages ++ [user_message]
 
+      # Update conversations list if we just created a new conversation
+      conversations = if socket.assigns.conversation == nil do
+        Chat.list_conversations(user)
+      else
+        socket.assigns.conversations
+      end
+
       # Send to AI agent asynchronously
       send(self(), {:generate_ai_response, conversation, String.trim(content)})
 
       assign(socket,
         conversation: conversation,
+        conversations: conversations,
         messages: messages,
         message_input: "",
         loading: true,
-        error: nil,
-        current_conversation_id: conversation.id
+        error: nil
       )
       |> noreply()
     else
@@ -119,9 +135,11 @@ defmodule AppWeb.ChatLive do
       {:ok, ai_message} ->
         # Refresh messages and update UI
         updated_messages = Chat.get_conversation_messages(conversation)
+        updated_pending_tasks = Tasks.list_pending_tasks(user)
 
         socket
         |> assign(:messages, updated_messages)
+        |> assign(:pending_tasks, updated_pending_tasks)
         |> assign(:loading, false)
         |> assign(:error, nil)
         |> noreply()
@@ -134,6 +152,15 @@ defmodule AppWeb.ChatLive do
     end
   end
 
+  defp get_sync_status(user) do
+    knowledge_status = KnowledgeBase.get_sync_status(user)
+
+    %{
+      gmail: if(user.google_access_token && knowledge_status.email_entries > 0, do: knowledge_status.status, else: "not_connected"),
+      hubspot: if(user.hubspot_access_token && knowledge_status.hubspot_entries > 0, do: knowledge_status.status, else: "not_connected")
+    }
+  end
+
   defp generate_title(content) do
     # Generate a simple title from the first part of the message
     content
@@ -144,6 +171,34 @@ defmodule AppWeb.ChatLive do
          "" -> "New Conversation"
          title -> title <> if String.length(content) > 50, do: "...", else: ""
        end
+  end
+
+  defp format_date(datetime) do
+    case datetime do
+      %NaiveDateTime{} = naive_dt ->
+        naive_dt
+        |> NaiveDateTime.to_date()
+        |> format_date_string()
+
+      %DateTime{} = dt ->
+        dt
+        |> DateTime.to_date()
+        |> format_date_string()
+
+      _ ->
+        "Unknown date"
+    end
+  end
+
+  defp format_date_string(date) do
+    today = Date.utc_today()
+    yesterday = Date.add(today, -1)
+
+    cond do
+      Date.compare(date, today) == :eq -> "Today"
+      Date.compare(date, yesterday) == :eq -> "Yesterday"
+      true -> Calendar.strftime(date, "%b %d")
+    end
   end
 
   defp format_time(datetime) do
@@ -167,5 +222,16 @@ defmodule AppWeb.ChatLive do
 
   defp format_time_string(time) do
     Calendar.strftime(time, "%I:%M %p")
+  end
+
+  defp get_knowledge_stats(user) do
+    user_instruction =
+      from k in App.Tasks.UserInstruction,
+           where: k.user_id == ^user.id,
+           select: count(k.id)
+
+    %{
+      user_instruction: App.Repo.one(user_instruction)
+    }
   end
 end

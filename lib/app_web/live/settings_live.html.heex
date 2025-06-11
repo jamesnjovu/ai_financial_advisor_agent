@@ -1,453 +1,244 @@
-<div class="flex h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-  <!-- Shared Sidebar Component -->
-  <.live_component
-    module={AppWeb.SidebarLive}
-    id="sidebar"
-    current_user={@current_user}
-    current_page={@current_page}
-    current_conversation_id={nil}
-    sidebar_open={@sidebar_open}
-  />
-
-  <!-- Main Settings Area -->
-  <div class="flex-1 flex flex-col min-w-0">
-    <!-- Mobile Header with Hamburger -->
-    <div class="lg:hidden p-4 border-b border-gray-700 bg-gray-800">
-      <div class="flex items-center justify-between">
-        <button
-          phx-click="toggle_sidebar"
-          phx-target="#sidebar"
-          class="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            >
-            </path>
-          </svg>
-        </button>
-        <h2 class="text-lg font-semibold text-white truncate mx-4">Settings</h2>
-        <div class="w-9"></div>
-      </div>
-    </div>
-
-    <!-- Desktop Header -->
-    <div class="hidden lg:block p-6 border-b border-gray-700 bg-gray-800">
+<div class="min-h-screen bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-white">Settings</h1>
           <p class="mt-2 text-gray-400">Manage your integrations, AI instructions, and task history</p>
         </div>
+        <.link
+          navigate={~p"/chat"}
+          class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-lg text-white bg-transparent hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+            >
+            </path>
+          </svg>
+          Back to Chat
+        </.link>
       </div>
     </div>
 
-    <!-- Settings Content -->
-    <div class="flex-1 overflow-y-auto bg-gray-900">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Left Column - Profile and Integrations -->
-          <div class="lg:col-span-2 space-y-8">
-            <!-- User Profile Section -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <h2 class="text-lg font-medium text-white">Profile</h2>
-                <p class="mt-1 text-sm text-gray-400">Your account information</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column - Profile and Integrations -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- User Profile Section -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-medium text-white">Profile</h2>
+            <p class="mt-1 text-sm text-gray-400">Your account information</p>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-xl font-medium">
+                  {String.first(@current_user.name || @current_user.email) |> String.upcase()}
+                </span>
               </div>
-              <div class="p-6">
-                <div class="flex items-center space-x-4">
-                  <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span class="text-white text-xl font-medium">
-                      {String.first(@current_user.name || @current_user.email) |> String.upcase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-medium text-white">
-                      {@current_user.name || "User"}
-                    </h3>
-                    <p class="text-gray-400">{@current_user.email}</p>
-                    <p class="text-sm text-gray-500 mt-1">
-                      Joined {Date.to_string(@current_user.inserted_at)}
-                    </p>
-                  </div>
+              <div>
+                <h3 class="text-lg font-medium text-white">
+                  {@current_user.name || "User"}
+                </h3>
+                <p class="text-gray-400">{@current_user.email}</p>
+                <p class="text-sm text-gray-500 mt-1">
+                  Joined {Date.to_string(@current_user.inserted_at)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations Section -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-medium text-white">Integrations</h2>
+            <p class="mt-1 text-sm text-gray-400">Connect your accounts to enable AI assistance</p>
+          </div>
+          <div class="p-6 space-y-4">
+            <!-- Google Integration -->
+            <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                  </svg>
                 </div>
+                <div>
+                  <h3 class="font-medium text-white">Google (Gmail & Calendar)</h3>
+                  <p class="text-sm text-gray-400">
+                    {if @gmail_connected,
+                      do: "Connected - can read emails and manage calendar",
+                      else: "Not connected"}
+                  </p>
+                </div>
+              </div>
+              <div class={[
+                "px-3 py-1 rounded-full text-sm font-medium",
+                if(@gmail_connected,
+                  do: "bg-green-600 text-white",
+                  else: "bg-gray-600 text-gray-300"
+                )
+              ]}>
+                {if @gmail_connected, do: "Connected", else: "Required"}
               </div>
             </div>
 
-            <!-- Integrations Section -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <h2 class="text-lg font-medium text-white">Integrations</h2>
-                <p class="mt-1 text-sm text-gray-400">Connect your accounts to enable AI assistance</p>
-              </div>
-              <div class="p-6 space-y-4">
-                <!-- Google Integration -->
-                <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="font-medium text-white">Google (Gmail & Calendar)</h3>
-                      <p class="text-sm text-gray-400">
-                        {if @gmail_connected,
-                          do: "Connected - can read emails and manage calendar",
-                          else: "Not connected"}
-                      </p>
-                    </div>
-                  </div>
-                  <div class={[
-                    "px-3 py-1 rounded-full text-sm font-medium",
-                    if(@gmail_connected,
-                      do: "bg-green-600 text-white",
-                      else: "bg-gray-600 text-gray-300"
-                    )
-                  ]}>
-                    {if @gmail_connected, do: "Connected", else: "Required"}
-                  </div>
+            <!-- HubSpot Integration -->
+            <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
+                  </svg>
                 </div>
-
-                <!-- HubSpot Integration -->
-                <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="font-medium text-white">HubSpot CRM</h3>
-                      <p class="text-sm text-gray-400">
-                        {if @hubspot_connected,
-                          do: "Connected - can manage contacts and notes",
-                          else: "Connect to manage CRM contacts"}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <div class={[
-                      "px-3 py-1 rounded-full text-sm font-medium",
-                      if(@hubspot_connected,
-                        do: "bg-green-600 text-white",
-                        else: "bg-yellow-600 text-white"
-                      )
-                    ]}>
-                      {if @hubspot_connected, do: "Connected", else: "Optional"}
-                    </div>
-                    <%= if @hubspot_connected do %>
-                      <button
-                        phx-click="disconnect_hubspot"
-                        class="text-sm text-red-400 hover:text-red-300 px-3 py-1 rounded border border-red-600 hover:border-red-500 transition-colors"
-                      >
-                        Disconnect
-                      </button>
-                    <% else %>
-                      <button
-                        phx-click="connect_hubspot"
-                        class="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors border border-orange-600"
-                      >
-                        Connect
-                      </button>
-                    <% end %>
-                  </div>
+                <div>
+                  <h3 class="font-medium text-white">HubSpot CRM</h3>
+                  <p class="text-sm text-gray-400">
+                    {if @hubspot_connected,
+                      do: "Connected - can manage contacts and notes",
+                      else: "Connect to manage CRM contacts"}
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <!-- User Instructions Management -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h2 class="text-lg font-medium text-white">AI Instructions</h2>
-                    <p class="mt-1 text-sm text-gray-400">
-                      Manage your automated AI behaviors and triggers
-                    </p>
-                  </div>
-                  <div class="flex items-center space-x-3">
-                    <div class="text-center">
-                      <div class="text-2xl font-bold text-blue-400">{@active_instructions_count}</div>
-                      <div class="text-xs text-gray-500">Active</div>
-                    </div>
-                    <div class="text-center">
-                      <div class="text-2xl font-bold text-gray-400">{@instructions_count}</div>
-                      <div class="text-xs text-gray-500">Total</div>
-                    </div>
-                  </div>
+              <div class="flex items-center space-x-2">
+                <div class={[
+                  "px-3 py-1 rounded-full text-sm font-medium",
+                  if(@hubspot_connected,
+                    do: "bg-green-600 text-white",
+                    else: "bg-yellow-600 text-white"
+                  )
+                ]}>
+                  {if @hubspot_connected, do: "Connected", else: "Optional"}
                 </div>
-              </div>
-
-              <div class="p-6">
-                <%= if Enum.any?(@user_instructions) do %>
-                  <div class="space-y-4">
-                    <%= for instruction <- @user_instructions do %>
-                      <div class="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
-                        <div class="flex items-start justify-between">
-                          <div class="flex-1 min-w-0">
-                            <div class="flex items-center space-x-2 mb-2">
-                              <div class={[
-                                "w-3 h-3 rounded-full",
-                                if(instruction.active, do: "bg-green-500", else: "bg-gray-500")
-                              ]}></div>
-                              <span class={[
-                                "text-sm font-medium",
-                                if(instruction.active, do: "text-green-400", else: "text-gray-400")
-                              ]}>
-                                {if instruction.active, do: "Active", else: "Inactive"}
-                              </span>
-                              <span class="text-xs text-gray-500">
-                                Priority: {instruction.priority}
-                              </span>
-                            </div>
-                            <p class="text-white text-sm mb-2">
-                              {instruction.instruction}
-                            </p>
-                            <div class="flex items-center space-x-4 text-xs text-gray-400">
-                              <span>
-                                Triggers: {format_triggers(instruction.triggers)}
-                              </span>
-                              <span>
-                                Created: {format_datetime(instruction.inserted_at)}
-                              </span>
-                            </div>
-                          </div>
-                          <div class="flex items-center space-x-2 ml-4">
-                            <button
-                              phx-click="toggle_instruction"
-                              phx-value-id={instruction.id}
-                              class={[
-                                "px-3 py-1 text-xs rounded-lg transition-colors",
-                                if(instruction.active,
-                                  do: "bg-yellow-600 hover:bg-yellow-700 text-white",
-                                  else: "bg-green-600 hover:bg-green-700 text-white"
-                                )
-                              ]}
-                            >
-                              {if instruction.active, do: "Deactivate", else: "Activate"}
-                            </button>
-                            <button
-                              phx-click="delete_instruction"
-                              phx-value-id={instruction.id}
-                              data-confirm="Are you sure you want to delete this instruction?"
-                              class="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    <% end %>
-                  </div>
+                <%= if @hubspot_connected do %>
+                  <button
+                    phx-click="disconnect_hubspot"
+                    class="text-sm text-red-400 hover:text-red-300 px-3 py-1 rounded border border-red-600 hover:border-red-500 transition-colors"
+                  >
+                    Disconnect
+                  </button>
                 <% else %>
-                  <div class="text-center py-8">
-                    <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                      </svg>
-                    </div>
-                    <h3 class="text-lg font-medium text-white mb-2">No Instructions Yet</h3>
-                    <p class="text-gray-400 mb-4">
-                      Create your first automation instruction through the chat interface
-                    </p>
-                    <.link
-                      navigate={~p"/chat"}
-                      class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
-                        >
-                        </path>
-                      </svg>
-                      Create Instructions
-                    </.link>
-                  </div>
+                  <button
+                    phx-click="connect_hubspot"
+                    class="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors border border-orange-600"
+                  >
+                    Connect
+                  </button>
                 <% end %>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Danger Zone -->
-            <div class="bg-gray-800 rounded-lg shadow border border-red-600">
-              <div class="p-6 border-b border-gray-700">
-                <h2 class="text-lg font-medium text-red-400">Danger Zone</h2>
-                <p class="mt-1 text-sm text-gray-400">Irreversible and destructive actions</p>
+        <!-- User Instructions Management -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-medium text-white">AI Instructions</h2>
+                <p class="mt-1 text-sm text-gray-400">
+                  Manage your automated AI behaviors and triggers
+                </p>
               </div>
-              <div class="p-6">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="font-medium text-white">Sign Out</h3>
-                    <p class="text-sm text-gray-400">Sign out of your account</p>
-                  </div>
-                  <.link
-                    href={~p"/auth/logout"}
-                    method="delete"
-                    class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors border border-red-600"
-                    data-confirm="Are you sure you want to sign out?"
-                  >
-                    Sign Out
-                  </.link>
+              <div class="flex items-center space-x-3">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-blue-400">{@active_instructions_count}</div>
+                  <div class="text-xs text-gray-500">Active</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-gray-400">{@instructions_count}</div>
+                  <div class="text-xs text-gray-500">Total</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column - Tasks and Activity -->
-          <div class="space-y-8">
-            <!-- Task Status Overview -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h2 class="text-lg font-medium text-white">Task Status</h2>
-                    <p class="mt-1 text-sm text-gray-400">Recent task activity and status</p>
-                  </div>
-                  <button
-                    phx-click="refresh_tasks"
-                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-                    title="Refresh tasks"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="p-6">
-                <!-- Task Statistics -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                  <div class="text-center p-3 bg-gray-700/30 rounded-lg">
-                    <div class="text-xl font-bold text-green-400">{@task_stats.completed}</div>
-                    <div class="text-xs text-gray-400">Completed</div>
-                  </div>
-                  <div class="text-center p-3 bg-gray-700/30 rounded-lg">
-                    <div class="text-xl font-bold text-red-400">{@task_stats.failed}</div>
-                    <div class="text-xs text-gray-400">Failed</div>
-                  </div>
-                  <div class="text-center p-3 bg-gray-700/30 rounded-lg">
-                    <div class="text-xl font-bold text-yellow-400">{@task_stats.pending}</div>
-                    <div class="text-xs text-gray-400">Pending</div>
-                  </div>
-                  <div class="text-center p-3 bg-gray-700/30 rounded-lg">
-                    <div class="text-xl font-bold text-blue-400">{@task_stats.success_rate}%</div>
-                    <div class="text-xs text-gray-400">Success Rate</div>
-                  </div>
-                </div>
-
-                <!-- Pending Tasks Badge -->
-                <%= if @pending_tasks_count > 0 do %>
-                  <div class="mb-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
-                    <div class="flex items-center">
-                      <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse mr-3"></div>
-                      <span class="text-yellow-400 font-medium">
-                        {@pending_tasks_count} task{if @pending_tasks_count != 1, do: "s"} pending
-                      </span>
-                    </div>
-                  </div>
-                <% end %>
-
-                <!-- Recent Tasks List -->
-                <%= if Enum.any?(@recent_tasks) do %>
-                  <div class="space-y-3 max-h-96 overflow-y-auto">
-                    <%= for task <- @recent_tasks do %>
-                      <div class="p-3 bg-gray-700/50 rounded-lg border border-gray-600/50">
-                        <div class="flex items-start justify-between">
-                          <div class="flex-1 min-w-0">
-                            <div class="flex items-center space-x-2 mb-2">
-                              <svg class={["w-4 h-4", status_icon(task.status)]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                              <span class={[
-                                "text-xs px-2 py-1 rounded-full border",
-                                status_class(task.status)
-                              ]}>
-                                {String.capitalize(task.status)}
-                              </span>
-                            </div>
-                            <h4 class="text-sm font-medium text-white mb-1">
-                              {truncate_text(task.title, 40)}
-                            </h4>
-                            <div class="flex items-center space-x-3 text-xs text-gray-400">
-                              <span>Type: {String.replace(task.task_type, "_", " ") |> String.capitalize()}</span>
-                              <span>
-                                {if task.completed_at,
-                                  do: "Completed: #{format_datetime(task.completed_at)}",
-                                  else: "Created: #{format_datetime(task.inserted_at)}"}
-                              </span>
-                            </div>
-                            <%= if task.description do %>
-                              <p class="text-xs text-gray-500 mt-1">
-                                {truncate_text(task.description, 60)}
-                              </p>
-                            <% end %>
-                          </div>
-
-                          <!-- Task Actions -->
-                          <div class="flex flex-col space-y-1 ml-2">
-                            <%= if task.status == "failed" do %>
-                              <button
-                                phx-click="retry_failed_task"
-                                phx-value-id={task.id}
-                                class="text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
-                                title="Retry this task"
-                              >
-                                Retry
-                              </button>
-                            <% end %>
-
-                            <%= if task.metadata && map_size(task.metadata) > 0 do %>
-                              <div class="text-xs text-gray-500">
-                                <%= if task.metadata["result"] do %>
-                                  <span class="text-green-400">✓</span>
-                                <% end %>
-                                <%= if task.metadata["error"] do %>
-                                  <span class="text-red-400" title={task.metadata["error"]}>✗</span>
-                                <% end %>
-                              </div>
-                            <% end %>
-                          </div>
+          <div class="p-6">
+            <%= if Enum.any?(@user_instructions) do %>
+              <div class="space-y-4">
+                <%= for instruction <- @user_instructions do %>
+                  <div class="p-4 bg-gray-700/50 border border-gray-600 rounded-lg">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2 mb-2">
+                          <div class={[
+                            "w-3 h-3 rounded-full",
+                            if(instruction.active, do: "bg-green-500", else: "bg-gray-500")
+                          ]}></div>
+                          <span class={[
+                            "text-sm font-medium",
+                            if(instruction.active, do: "text-green-400", else: "text-gray-400")
+                          ]}>
+                            {if instruction.active, do: "Active", else: "Inactive"}
+                          </span>
+                          <span class="text-xs text-gray-500">
+                            Priority: {instruction.priority}
+                          </span>
+                        </div>
+                        <p class="text-white text-sm mb-2">
+                          {instruction.instruction}
+                        </p>
+                        <div class="flex items-center space-x-4 text-xs text-gray-400">
+                          <span>
+                            Triggers: {format_triggers(instruction.triggers)}
+                          </span>
+                          <span>
+                            Created: {format_datetime(instruction.inserted_at)}
+                          </span>
                         </div>
                       </div>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <div class="text-center py-6">
-                    <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                      </svg>
+                      <div class="flex items-center space-x-2 ml-4">
+                        <button
+                          phx-click="toggle_instruction"
+                          phx-value-id={instruction.id}
+                          class={[
+                            "px-3 py-1 text-xs rounded-lg transition-colors",
+                            if(instruction.active,
+                              do: "bg-yellow-600 hover:bg-yellow-700 text-white",
+                              else: "bg-green-600 hover:bg-green-700 text-white"
+                            )
+                          ]}
+                        >
+                          {if instruction.active, do: "Deactivate", else: "Activate"}
+                        </button>
+                        <button
+                          phx-click="delete_instruction"
+                          phx-value-id={instruction.id}
+                          data-confirm="Are you sure you want to delete this instruction?"
+                          class="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                    <h3 class="text-sm font-medium text-white mb-1">No Tasks Yet</h3>
-                    <p class="text-xs text-gray-400">
-                      Tasks will appear here when your AI assistant performs actions
-                    </p>
                   </div>
                 <% end %>
               </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <h2 class="text-lg font-medium text-white">Quick Actions</h2>
-                <p class="mt-1 text-sm text-gray-400">Common settings and actions</p>
-              </div>
-              <div class="p-6 space-y-3">
+            <% else %>
+              <div class="text-center py-8">
+                <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-medium text-white mb-2">No Instructions Yet</h3>
+                <p class="text-gray-400 mb-4">
+                  Create your first automation instruction through the chat interface
+                </p>
                 <.link
                   navigate={~p"/chat"}
-                  class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50"
+                  class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  <svg class="w-5 h-5 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -456,106 +247,291 @@
                     >
                     </path>
                   </svg>
-                  <div>
-                    <div class="text-sm font-medium text-white">Create New Instructions</div>
-                    <div class="text-xs text-gray-400">Set up automation via chat</div>
-                  </div>
+                  Create Instructions
                 </.link>
+              </div>
+            <% end %>
+          </div>
+        </div>
 
-                <%= if @hubspot_connected do %>
-                  <button
-                    phx-click="disconnect_hubspot"
-                    class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-red-700/20 rounded-lg transition-colors border border-gray-600/50 hover:border-red-600/50"
-                  >
-                    <svg class="w-5 h-5 text-orange-400 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
-                    </svg>
-                    <div>
-                      <div class="text-sm font-medium text-white">Disconnect HubSpot</div>
-                      <div class="text-xs text-gray-400">Remove CRM integration</div>
-                    </div>
-                  </button>
-                <% else %>
-                  <button
-                    phx-click="connect_hubspot"
-                    class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-orange-700/20 rounded-lg transition-colors border border-gray-600/50 hover:border-orange-600/50"
-                  >
-                    <svg class="w-5 h-5 text-orange-400 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
-                    </svg>
-                    <div>
-                      <div class="text-sm font-medium text-white">Connect HubSpot</div>
-                      <div class="text-xs text-gray-400">Enable CRM integration</div>
-                    </div>
-                  </button>
-                <% end %>
+        <!-- Danger Zone -->
+        <div class="bg-gray-800 rounded-lg shadow border border-red-600">
+          <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-medium text-red-400">Danger Zone</h2>
+            <p class="mt-1 text-sm text-gray-400">Irreversible and destructive actions</p>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-white">Sign Out</h3>
+                <p class="text-sm text-gray-400">Sign out of your account</p>
+              </div>
+              <.link
+                href={~p"/auth/logout"}
+                method="delete"
+                class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors border border-red-600"
+                data-confirm="Are you sure you want to sign out?"
+              >
+                Sign Out
+              </.link>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <button
-                  phx-click="refresh_tasks"
-                  class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50"
-                >
-                  <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                  </svg>
-                  <div>
-                    <div class="text-sm font-medium text-white">Refresh Task Status</div>
-                    <div class="text-xs text-gray-400">Update task information</div>
-                  </div>
-                </button>
+      <!-- Right Column - Tasks and Activity -->
+      <div class="space-y-8">
+        <!-- Task Status Overview -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-medium text-white">Task Status</h2>
+                <p class="mt-1 text-sm text-gray-400">Recent task activity and status</p>
+              </div>
+              <button
+                phx-click="refresh_tasks"
+                class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                title="Refresh tasks"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <!-- Task Statistics -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="text-center p-3 bg-gray-700/30 rounded-lg">
+                <div class="text-xl font-bold text-green-400">{@task_stats.completed}</div>
+                <div class="text-xs text-gray-400">Completed</div>
+              </div>
+              <div class="text-center p-3 bg-gray-700/30 rounded-lg">
+                <div class="text-xl font-bold text-red-400">{@task_stats.failed}</div>
+                <div class="text-xs text-gray-400">Failed</div>
+              </div>
+              <div class="text-center p-3 bg-gray-700/30 rounded-lg">
+                <div class="text-xl font-bold text-yellow-400">{@task_stats.pending}</div>
+                <div class="text-xs text-gray-400">Pending</div>
+              </div>
+              <div class="text-center p-3 bg-gray-700/30 rounded-lg">
+                <div class="text-xl font-bold text-blue-400">{@task_stats.success_rate}%</div>
+                <div class="text-xs text-gray-400">Success Rate</div>
               </div>
             </div>
 
-            <!-- Examples and Help -->
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-              <div class="p-6 border-b border-gray-700">
-                <h2 class="text-lg font-medium text-white">Example Instructions</h2>
-                <p class="mt-1 text-sm text-gray-400">Ideas for automation</p>
-              </div>
-              <div class="p-6">
-                <div class="space-y-3 text-sm text-gray-300">
-                  <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
-                    <p class="text-white font-medium mb-1">Email Auto-Contact</p>
-                    <p class="text-xs text-gray-400">
-                      "When someone emails me who isn't in HubSpot, create a contact with a note about the email."
-                    </p>
-                  </div>
-
-                  <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
-                    <p class="text-white font-medium mb-1">Welcome Email</p>
-                    <p class="text-xs text-gray-400">
-                      "When I create a contact in HubSpot, send them a welcome email."
-                    </p>
-                  </div>
-
-                  <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
-                    <p class="text-white font-medium mb-1">Meeting Notifications</p>
-                    <p class="text-xs text-gray-400">
-                      "When I schedule a meeting, send a confirmation email to attendees with the agenda."
-                    </p>
-                  </div>
+            <!-- Pending Tasks Badge -->
+            <%= if @pending_tasks_count > 0 do %>
+              <div class="mb-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse mr-3"></div>
+                  <span class="text-yellow-400 font-medium">
+                    {@pending_tasks_count} task{if @pending_tasks_count != 1, do: "s"} pending
+                  </span>
                 </div>
+              </div>
+            <% end %>
 
-                <div class="mt-4 pt-4 border-t border-gray-700">
-                  <p class="text-xs text-gray-400 mb-3">
-                    You can create these instructions by talking to your AI assistant in natural language.
-                  </p>
-                  <.link
-                    navigate={~p"/chat"}
-                    class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+            <!-- Recent Tasks List -->
+            <%= if Enum.any?(@recent_tasks) do %>
+              <div class="space-y-3 max-h-96 overflow-y-auto">
+                <%= for task <- @recent_tasks do %>
+                  <div class="p-3 bg-gray-700/50 rounded-lg border border-gray-600/50">
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2 mb-2">
+                          <svg class={["w-4 h-4", status_icon(task.status)]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span class={[
+                            "text-xs px-2 py-1 rounded-full border",
+                            status_class(task.status)
+                          ]}>
+                            {String.capitalize(task.status)}
+                          </span>
+                        </div>
+                        <h4 class="text-sm font-medium text-white mb-1">
+                          {truncate_text(task.title, 40)}
+                        </h4>
+                        <div class="flex items-center space-x-3 text-xs text-gray-400">
+                          <span>Type: {String.replace(task.task_type, "_", " ") |> String.capitalize()}</span>
+                          <span>
+                            {if task.completed_at,
+                              do: "Completed: #{format_datetime(task.completed_at)}",
+                              else: "Created: #{format_datetime(task.inserted_at)}"}
+                          </span>
+                        </div>
+                        <%= if task.description do %>
+                          <p class="text-xs text-gray-500 mt-1">
+                            {truncate_text(task.description, 60)}
+                          </p>
+                        <% end %>
+                      </div>
+
+                      <!-- Task Actions -->
+                      <div class="flex flex-col space-y-1 ml-2">
+                        <%= if task.status == "failed" do %>
+                          <button
+                            phx-click="retry_failed_task"
+                            phx-value-id={task.id}
+                            class="text-xs px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
+                            title="Retry this task"
+                          >
+                            Retry
+                          </button>
+                        <% end %>
+
+                        <%= if task.metadata && map_size(task.metadata) > 0 do %>
+                          <div class="text-xs text-gray-500">
+                            <%= if task.metadata["result"] do %>
+                              <span class="text-green-400">✓</span>
+                            <% end %>
+                            <%= if task.metadata["error"] do %>
+                              <span class="text-red-400" title={task.metadata["error"]}>✗</span>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-6">
+                <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                </div>
+                <h3 class="text-sm font-medium text-white mb-1">No Tasks Yet</h3>
+                <p class="text-xs text-gray-400">
+                  Tasks will appear here when your AI assistant performs actions
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-medium text-white">Quick Actions</h2>
+            <p class="mt-1 text-sm text-gray-400">Common settings and actions</p>
+          </div>
+          <div class="p-6 space-y-3">
+            <.link
+              navigate={~p"/chat"}
+              class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50"
+            >
+              <svg class="w-5 h-5 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                >
+                </path>
+              </svg>
+              <div>
+                <div class="text-sm font-medium text-white">Create New Instructions</div>
+                <div class="text-xs text-gray-400">Set up automation via chat</div>
+              </div>
+            </.link>
+
+            <%= if @hubspot_connected do %>
+              <button
+                phx-click="disconnect_hubspot"
+                class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-red-700/20 rounded-lg transition-colors border border-gray-600/50 hover:border-red-600/50"
+              >
+                <svg class="w-5 h-5 text-orange-400 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
+                </svg>
+                <div>
+                  <div class="text-sm font-medium text-white">Disconnect HubSpot</div>
+                  <div class="text-xs text-gray-400">Remove CRM integration</div>
+                </div>
+              </button>
+            <% else %>
+              <button
+                phx-click="connect_hubspot"
+                class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-orange-700/20 rounded-lg transition-colors border border-gray-600/50 hover:border-orange-600/50"
+              >
+                <svg class="w-5 h-5 text-orange-400 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
+                </svg>
+                <div>
+                  <div class="text-sm font-medium text-white">Connect HubSpot</div>
+                  <div class="text-xs text-gray-400">Enable CRM integration</div>
+                </div>
+              </button>
+            <% end %>
+
+            <button
+              phx-click="refresh_tasks"
+              class="flex items-center w-full p-3 text-left bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50"
+            >
+              <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              <div>
+                <div class="text-sm font-medium text-white">Refresh Task Status</div>
+                <div class="text-xs text-gray-400">Update task information</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Examples and Help -->
+        <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+          <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-medium text-white">Example Instructions</h2>
+            <p class="mt-1 text-sm text-gray-400">Ideas for automation</p>
+          </div>
+          <div class="p-6">
+            <div class="space-y-3 text-sm text-gray-300">
+              <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                <p class="text-white font-medium mb-1">Email Auto-Contact</p>
+                <p class="text-xs text-gray-400">
+                  "When someone emails me who isn't in HubSpot, create a contact with a note about the email."
+                </p>
+              </div>
+
+              <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                <p class="text-white font-medium mb-1">Welcome Email</p>
+                <p class="text-xs text-gray-400">
+                  "When I create a contact in HubSpot, send them a welcome email."
+                </p>
+              </div>
+
+              <div class="p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                <p class="text-white font-medium mb-1">Meeting Notifications</p>
+                <p class="text-xs text-gray-400">
+                  "When I schedule a meeting, send a confirmation email to attendees with the agenda."
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-700">
+              <p class="text-xs text-gray-400 mb-3">
+                You can create these instructions by talking to your AI assistant in natural language.
+              </p>
+              <.link
+                navigate={~p"/chat"}
+                class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
                   >
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 4v16m8-8H4"
-                      >
-                      </path>
-                    </svg>
-                    Try It Now
-                  </.link>
-                </div>
-              </div>
+                  </path>
+                </svg>
+                Try It Now
+              </.link>
             </div>
           </div>
         </div>

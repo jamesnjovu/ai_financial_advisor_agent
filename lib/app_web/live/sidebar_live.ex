@@ -121,8 +121,8 @@ defmodule AppWeb.SidebarLive do
       </div>
     <% end %>
 
-    <!-- Conversations List -->
-    <div class="flex-1 overflow-y-auto">
+    <!-- Conversations List - Now takes remaining space -->
+    <div class="flex-1 overflow-y-auto min-h-0">
       <div class="p-2">
         <%= if Enum.any?(@conversations) do %>
           <%= for conv <- @conversations do %>
@@ -131,7 +131,7 @@ defmodule AppWeb.SidebarLive do
               phx-value-id={conv.id}
               phx-target={@myself}
               class={[
-                "group p-4 rounded-xl cursor-pointer mb-2 transition-all duration-200",
+                "group p-3 sm:p-4 rounded-xl cursor-pointer mb-2 transition-all duration-200",
                 if(@current_conversation_id && conv.id == @current_conversation_id,
                   do:
                     "bg-gradient-to-r from-blue-600/20 to-blue-500/10 border border-blue-500/30 shadow-lg",
@@ -146,7 +146,7 @@ defmodule AppWeb.SidebarLive do
                   </div>
                   <div class="text-xs text-gray-400 mt-1 flex items-center">
                     <svg
-                      class="w-3 h-3 mr-1"
+                      class="w-3 h-3 mr-1 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -159,11 +159,11 @@ defmodule AppWeb.SidebarLive do
                       >
                       </path>
                     </svg>
-                    {format_date(conv.updated_at)}
+                    <span class="truncate">{format_date(conv.updated_at)}</span>
                   </div>
                 </div>
                 <%= if @current_conversation_id && conv.id == @current_conversation_id do %>
-                  <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse ml-2"></div>
+                  <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse ml-2 flex-shrink-0"></div>
                 <% end %>
               </div>
             </div>
@@ -190,33 +190,33 @@ defmodule AppWeb.SidebarLive do
       </div>
     </div>
 
-    <!-- User Info -->
-    <div class="p-4 border-t border-gray-700/50 bg-gray-800/30">
+    <!-- User Info - Sticky Bottom Section -->
+    <div class="sticky bottom-0 p-3 sm:p-4 border-t border-gray-700/50 bg-gray-800/80 backdrop-blur-sm">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span class="text-white text-sm font-bold">
+        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <span class="text-white text-xs sm:text-sm font-bold">
               {String.first(@current_user.name || @current_user.email) |> String.upcase()}
             </span>
           </div>
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium text-white truncate">
+            <div class="text-xs sm:text-sm font-medium text-white truncate">
               {@current_user.name || @current_user.email}
             </div>
-            <div class="text-xs text-gray-400 flex items-center">
+            <div class="text-xs text-gray-400 flex items-center mt-0.5">
               <%= if @current_user.hubspot_access_token do %>
-                <div class="w-2 h-2 bg-emerald-400 rounded-full mr-1"></div>
-                All integrations active
+                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full mr-1 flex-shrink-0"></div>
+                <span class="truncate">All integrations active</span>
               <% else %>
-                <div class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></div>
-                Setup pending
+                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-yellow-400 rounded-full mr-1 flex-shrink-0"></div>
+                <span class="truncate">Setup pending</span>
               <% end %>
             </div>
           </div>
         </div>
         <.link
           navigate={if @current_page == :settings, do: ~p"/chat", else: ~p"/settings"}
-          class="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200"
+          class="p-1.5 sm:p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex-shrink-0 ml-2"
           title={if @current_page == :settings, do: "Back to Chat", else: "Settings"}
         >
           <%= if @current_page == :settings do %>
@@ -235,7 +235,7 @@ defmodule AppWeb.SidebarLive do
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.5 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
               >
               </path>
               <path
