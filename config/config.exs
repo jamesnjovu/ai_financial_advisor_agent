@@ -14,10 +14,6 @@ config :app,
 config :app, App.Repo,
        types: App.PostgrexTypes
 
-config :app, :openai,
-       api_key: System.get_env("OPENAI_API_KEY"),
-       model: "gpt-4.1"
-
 # Configures the endpoint
 config :app, AppWeb.Endpoint,
   url: [host: "localhost"],
@@ -33,7 +29,6 @@ config :app, AppWeb.Endpoint,
     "//aifinancialagent.sms.probasegroup.com",
   ]
 
-
 # OAuth configs
 config :app, :google_oauth,
        client_id: System.get_env("GOOGLE_CLIENT_ID"),
@@ -44,6 +39,17 @@ config :app, :hubspot_oauth,
        client_id: System.get_env("HUBSPOT_CLIENT_ID") ,
        client_secret: System.get_env("HUBSPOT_CLIENT_SECRET"),
        redirect_uri: System.get_env("HUBSPOT_REDIRECT_URI")
+
+config :app, :intergretion,
+       google_project_id: System.get_env("GOOGLE_CLOUD_PROJECT_ID"),
+       gmail_token_name: System.get_env("GMAIL_TOPIC_NAME")
+
+config :app,
+       webhook_base_url: System.get_env("WEBHOOK_BASE_URL") || "http://localhost:4500"
+
+config :app, :openai,
+       api_key: System.get_env("OPENAI_API_KEY"),
+       model: "gpt-4.1"
 
 # Configures the mailer
 #

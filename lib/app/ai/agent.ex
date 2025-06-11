@@ -386,6 +386,18 @@ defmodule App.AI.Agent do
             required: []
           }
         }
+      },
+      %{
+        type: "function",
+        function: %{
+          name: "setup_gmail_webhook",
+          description: "Set up real-time email notifications",
+          parameters: %{
+            type: "object",
+            properties: %{},
+            required: []
+          }
+        }
       }
     ]
   end

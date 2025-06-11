@@ -3,7 +3,12 @@ defmodule App.AI.Tools do
   Tool execution for AI agent actions
   """
 
-  alias App.Integrations.{GmailClient, CalendarClient, HubSpotClient}
+  alias App.Integrations.{
+    GmailClient,
+    CalendarClient,
+    HubSpotClient
+  }
+
   alias App.AI.KnowledgeBase
   alias App.Tasks
   alias App.Accounts.User
@@ -47,6 +52,20 @@ defmodule App.AI.Tools do
 
       {:error, reason} ->
         {:error, "Failed to setup calendar webhook: #{inspect(reason)}"}
+    end
+  end
+
+  def execute_tool("setup_gmail_webhook", _params, %User{} = user) do
+    case App.Integrations.GmailClient.setup_gmail_webhook(user) do
+      {:ok, response} ->
+        {:ok, %{
+          history_id: response["historyId"],
+          expires_at: response["expiration"],
+          message: "Gmail webhook setup successfully - will now receive email notifications"
+        }}
+
+      {:error, reason} ->
+        {:error, "Failed to setup Gmail webhook: #{inspect(reason)}"}
     end
   end
 
@@ -153,41 +172,6 @@ defmodule App.AI.Tools do
     end
   end
 
-  defp parse_datetime(datetime_string) when is_binary(datetime_string) do
-    case DateTime.from_iso8601(datetime_string) do
-      {:ok, datetime, _} -> datetime
-      _ -> nil
-    end
-  end
-
-  defp parse_datetime(_), do: nil
-
-  defp validate_availability(preferred_times, user, contact_email) do
-    # Check if preferred times are actually available
-    Enum.filter(preferred_times, fn preferred_time ->
-      time_min = DateTime.add(preferred_time, -1 * 60 * 60, :second)
-      time_max = DateTime.add(preferred_time, 2 * 60 * 60, :second)
-
-      case CalendarClient.get_free_busy(user, [contact_email],
-             DateTime.to_iso8601(time_min),
-             DateTime.to_iso8601(time_max)) do
-        {:ok, free_busy} ->
-          # Check if the time slot is actually free
-          is_time_available?(preferred_time, free_busy)
-
-        _ ->
-          false
-      end
-    end)
-  end
-
-  defp is_time_available?(preferred_time, free_busy) do
-    # Simple check - in a real app you'd parse the free_busy response
-    # For now, assume the time is available if no errors
-    true
-  end
-
-
   def execute_tool("send_email", params, %User{} = user) do
     %{
       "to" => to,
@@ -246,6 +230,40 @@ defmodule App.AI.Tools do
 
   def execute_tool(tool_name, _params, _user) do
     {:error, "Unknown tool: #{tool_name}"}
+  end
+
+  defp parse_datetime(datetime_string) when is_binary(datetime_string) do
+    case DateTime.from_iso8601(datetime_string) do
+      {:ok, datetime, _} -> datetime
+      _ -> nil
+    end
+  end
+
+  defp parse_datetime(_), do: nil
+
+  defp validate_availability(preferred_times, user, contact_email) do
+    # Check if preferred times are actually available
+    Enum.filter(preferred_times, fn preferred_time ->
+      time_min = DateTime.add(preferred_time, -1 * 60 * 60, :second)
+      time_max = DateTime.add(preferred_time, 2 * 60 * 60, :second)
+
+      case CalendarClient.get_free_busy(user, [contact_email],
+             DateTime.to_iso8601(time_min),
+             DateTime.to_iso8601(time_max)) do
+        {:ok, free_busy} ->
+          # Check if the time slot is actually free
+          is_time_available?(preferred_time, free_busy)
+
+        _ ->
+          false
+      end
+    end)
+  end
+
+  defp is_time_available?(preferred_time, free_busy) do
+    # Simple check - in a real app you'd parse the free_busy response
+    # For now, assume the time is available if no errors
+    true
   end
 
   defp format_date(datetime) do

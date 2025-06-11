@@ -147,4 +147,53 @@ defmodule AppWeb.WebhookController do
       nil -> {:error, :user_not_found}
     end
   end
+
+  def gmail_pubsub_webhook(conn, params) do
+    with {:ok, pubsub_data} <- decode_pubsub_message(params),
+         {:ok, user} <- find_user_by_email_address(pubsub_data["emailAddress"]) do
+
+      # Process the Gmail history changes
+      BackgroundWorker.process_gmail_history_webhook(user.id, pubsub_data)
+      Logger.info("Processed Gmail Pub/Sub webhook for user #{user.id}")
+
+      send_resp(conn, 200, "OK")
+    else
+      {:error, :invalid_format} ->
+        Logger.warning("Invalid Gmail Pub/Sub webhook format: #{inspect(params)}")
+        send_resp(conn, 400, "Invalid webhook format")
+
+      {:error, :decode_failed} ->
+        Logger.warning("Failed to decode Gmail Pub/Sub webhook data")
+        send_resp(conn, 400, "Invalid webhook data")
+
+      {:error, :user_not_found} ->
+        Logger.info("Gmail Pub/Sub webhook for unknown user - ignoring")
+        send_resp(conn, 200, "OK")
+    end
+  end
+
+  defp decode_pubsub_message(%{"message" => %{"data" => encoded_data, "attributes" => attributes}}) do
+    try do
+      decoded = Base.decode64!(encoded_data)
+      pubsub_data = Jason.decode!(decoded)
+
+      # Add attributes for additional context
+      pubsub_data = Map.put(pubsub_data, "attributes", attributes)
+
+      {:ok, pubsub_data}
+    rescue
+      _ -> {:error, :decode_failed}
+    end
+  end
+
+  defp decode_pubsub_message(_), do: {:error, :invalid_format}
+
+  defp find_user_by_email_address(email_address) when is_binary(email_address) do
+    case Accounts.get_user_by_email(email_address) do
+      %App.Accounts.User{} = user -> {:ok, user}
+      nil -> {:error, :user_not_found}
+    end
+  end
+
+  defp find_user_by_email_address(_), do: {:error, :user_not_found}
 end

@@ -27,6 +27,13 @@ defmodule App.BackgroundWorker do
     GenServer.cast(__MODULE__, {:hubspot_webhook, portal_id, contact_data})
   end
 
+  @doc """
+  Process Gmail history webhook - gets the actual changed messages
+  """
+  def process_gmail_history_webhook(user_id, pubsub_data) do
+    GenServer.cast(__MODULE__, {:gmail_history_webhook, user_id, pubsub_data})
+  end
+
   # Server callbacks
   def init(_opts) do
     # Schedule periodic task processing
@@ -49,6 +56,29 @@ defmodule App.BackgroundWorker do
       nil ->
         :ok
     end
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:gmail_history_webhook, user_id, pubsub_data}, state) do
+    case Accounts.get_user(user_id) do
+      %App.Accounts.User{} = user ->
+        # Get the history changes to find new messages
+        spawn(fn -> process_gmail_history_changes(user, pubsub_data) end)
+
+      nil ->
+        :ok
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info(:gmail_webhook_maintenance, state) do
+    # Refresh Gmail webhooks that are expiring
+    spawn(fn -> refresh_gmail_webhooks() end)
+
+    # Schedule next maintenance
+    Process.send_after(self(), :gmail_webhook_maintenance, 60 * 60 * 1000)
 
     {:noreply, state}
   end
@@ -202,5 +232,132 @@ defmodule App.BackgroundWorker do
       {:error, _} ->
         :ok
     end
+  end
+
+  defp process_history_changes(_user, _), do: :ok
+
+  defp process_potential_meeting_response(user, message_id) do
+    case App.Integrations.GmailClient.get_message(user, message_id) do
+      {:ok, message} ->
+        email_data = App.Integrations.GmailClient.extract_email_data(message)
+
+        # Check if this looks like a meeting response
+        if is_meeting_response?(email_data) do
+          # Create a task to parse and handle the meeting response
+          Tasks.create_task(user, %{
+            title: "Process meeting response from #{email_data.from}",
+            task_type: "process_meeting_response",
+            context: %{
+              message_id: message_id,
+              from: email_data.from,
+              subject: email_data.subject,
+              content: email_data.body,
+              thread_id: email_data.thread_id
+            }
+          })
+        end
+
+      {:error, reason} ->
+        Logger.error("Failed to get message #{message_id}: #{inspect(reason)}")
+    end
+  end
+
+  defp process_history_changes(user, %{"history" => history_list}) when is_list(history_list) do
+    # Process each history item for new messages
+    Enum.each(history_list, fn history_item ->
+      if messages_added = history_item["messagesAdded"] do
+        Enum.each(messages_added, fn %{"message" => message} ->
+          # Check if this is a reply to a scheduling email
+          process_potential_meeting_response(user, message["id"])
+
+          # Also trigger general email_received instructions
+          Tasks.check_instructions_for_trigger(user, "email_received", %{
+            message_id: message["id"],
+            thread_id: message["threadId"]
+          })
+        end)
+      end
+    end)
+  end
+
+  defp process_gmail_history_changes(user, pubsub_data) do
+    history_id = pubsub_data["historyId"]
+
+    # Get stored history ID to see what's new
+    case App.Repo.get_by(App.Webhooks.GmailChannel, user_id: user.id) do
+      %{history_id: last_history_id} = channel ->
+        # Get history changes since last known history ID
+        case get_gmail_history_changes(user, last_history_id, history_id) do
+          {:ok, changes} ->
+            process_history_changes(user, changes)
+
+            # Update stored history ID
+            App.Repo.update!(
+              App.Webhooks.GmailChannel.changeset(channel, %{history_id: history_id})
+            )
+
+          {:error, reason} ->
+            Logger.error("Failed to get Gmail history: #{inspect(reason)}")
+        end
+
+      nil ->
+        Logger.warning("No Gmail webhook channel found for user #{user.id}")
+    end
+  end
+
+  defp get_gmail_history_changes(user, start_history_id, end_history_id) do
+    case App.Auth.GoogleOAuth.get_valid_token(user) do
+      {:ok, token} ->
+        headers = [{"Authorization", "Bearer #{token}"}]
+
+        url = "https://gmail.googleapis.com/gmail/v1/users/me/history" <>
+              "?startHistoryId=#{start_history_id}&historyTypes=messageAdded"
+
+        case HTTPoison.get(url, headers) do
+          {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+            {:ok, Jason.decode!(body)}
+
+          {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+            {:error, "Gmail API error #{status}: #{body}"}
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  defp is_meeting_response?(email_data) do
+    subject = String.downcase(email_data.subject || "")
+    body = String.downcase(email_data.body || "")
+
+    # Check for meeting-related keywords
+    meeting_keywords = ["meeting", "schedule", "time", "available", "appointment", "calendar"]
+    response_keywords = ["re:", "works for me", "sounds good", "confirm", "available"]
+
+    has_meeting_keyword = Enum.any?(meeting_keywords, &String.contains?(subject <> " " <> body, &1))
+    has_response_keyword = Enum.any?(response_keywords, &String.contains?(subject <> " " <> body, &1))
+
+    has_meeting_keyword && has_response_keyword
+  end
+
+  defp refresh_gmail_webhooks do
+    # Find Gmail webhooks expiring in the next 24 hours
+    expiring_soon = DateTime.add(DateTime.utc_now(), 24 * 60 * 60, :second)
+
+    expiring_channels = App.Webhooks.expiring_channels(expiring_soon)
+
+    Enum.each(expiring_channels, fn channel ->
+      # Refresh the Gmail webhook
+      case App.Integrations.GmailClient.setup_gmail_webhook(channel.user) do
+        {:ok, _} ->
+          Logger.info("Refreshed Gmail webhook for user #{channel.user_id}")
+
+        {:error, reason} ->
+          Logger.error("Failed to refresh Gmail webhook for user #{channel.user_id}: #{inspect(reason)}")
+      end
+    end)
   end
 end

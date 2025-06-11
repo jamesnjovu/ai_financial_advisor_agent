@@ -91,6 +91,7 @@ defmodule App.Integrations.GmailClient do
   def watch_inbox(user, webhook_url) do
     case GoogleOAuth.get_valid_token(user) do
       {:ok, token} ->
+        config = Application.get_env(:app, :intergretion)
         headers = [
           {"Authorization", "Bearer #{token}"},
           {"Content-Type", "application/json"}
@@ -98,7 +99,7 @@ defmodule App.Integrations.GmailClient do
 
         payload = %{
           labelIds: ["INBOX"],
-          topicName: "projects/your-project/topics/gmail-push"
+          topicName: "projects/#{config[:google_project_id]}/topics/#{config[:gmail_token_name]}"
         }
 
         url = "#{@base_url}/users/me/watch"
@@ -212,4 +213,122 @@ defmodule App.Integrations.GmailClient do
       n -> data <> String.duplicate("=", 4 - n)
     end
   end
+
+  @doc """
+  Set up Gmail push notifications for the user's inbox
+  """
+  def setup_gmail_webhook(%App.Accounts.User{} = user) do
+    case GoogleOAuth.get_valid_token(user) do
+      {:ok, token} ->
+        headers = [
+          {"Authorization", "Bearer #{token}"},
+          {"Content-Type", "application/json"}
+        ]
+
+        # Get configuration
+        project_id = Application.get_env(:app, :google_pubsub_project_id)
+        topic_name = Application.get_env(:app, :gmail_pubsub_topic, "gmail-push")
+
+        payload = %{
+          labelIds: ["INBOX"],
+          topicName: "projects/#{project_id}/topics/#{topic_name}"
+        }
+
+        url = "#{@base_url}/users/me/watch"
+
+        case HTTPoison.post(url, Jason.encode!(payload), headers, @options) do
+          {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+            response = Jason.decode!(body)
+
+            # Store webhook info in database
+            {:ok, _} = store_gmail_webhook(user, response)
+
+            {:ok, response}
+
+          {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+            {:error, "Gmail webhook setup failed #{status}: #{body}"}
+
+          {:error, reason} ->
+            {:error, "HTTP request failed: #{inspect(reason)}"}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Stop Gmail push notifications
+  """
+  def stop_gmail_webhook(%App.Accounts.User{} = user) do
+    case GoogleOAuth.get_valid_token(user) do
+      {:ok, token} ->
+        headers = [{"Authorization", "Bearer #{token}"}]
+        url = "#{@base_url}/users/me/stop"
+
+        case HTTPoison.post(url, "", headers, @options) do
+          {:ok, %HTTPoison.Response{status_code: 200}} ->
+            # Remove from database
+            remove_gmail_webhook(user)
+            {:ok, :stopped}
+
+          {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+            {:error, "Failed to stop Gmail webhook #{status}: #{body}"}
+
+          {:error, reason} ->
+            {:error, "HTTP request failed: #{inspect(reason)}"}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Check if Gmail webhook is active for user
+  """
+  def gmail_webhook_active?(%App.Accounts.User{} = user) do
+    case App.Repo.get_by(App.Webhooks.GmailChannel, user_id: user.id) do
+      nil -> false
+      %{active: active, expiration: exp} ->
+        active && DateTime.compare(exp, DateTime.utc_now()) == :gt
+    end
+  end
+
+  # Private functions
+
+  defp store_gmail_webhook(user, response) do
+    attrs = %{
+      user_id: user.id,
+      history_id: response["historyId"],
+      expiration: unix_to_datetime(response["expiration"]),
+      active: true
+    }
+
+    case App.Repo.get_by(App.Webhooks.GmailChannel, user_id: user.id) do
+      nil ->
+        %App.Webhooks.GmailChannel{}
+        |> App.Webhooks.GmailChannel.changeset(attrs)
+        |> App.Repo.insert()
+
+      existing ->
+        existing
+        |> App.Webhooks.GmailChannel.changeset(attrs)
+        |> App.Repo.update()
+    end
+  end
+
+  defp remove_gmail_webhook(user) do
+    case App.Repo.get_by(App.Webhooks.GmailChannel, user_id: user.id) do
+      nil -> :ok
+      channel -> App.Repo.delete(channel)
+    end
+  end
+
+  defp unix_to_datetime(unix_ms_string) do
+    unix_ms_string
+    |> String.to_integer()
+    |> DateTime.from_unix!(:millisecond)
+  end
+
 end

@@ -10,7 +10,7 @@ defmodule App.Webhooks.CalendarManager do
   alias App.Auth.GoogleOAuth
   alias App.Accounts.User
 
-  @webhook_base_url Application.compile_env(:app, :webhook_base_url, "https://your-domain.com")
+  @webhook_base_url Application.compile_env(:app, :webhook_base_url, "http://localhost:4500")
 
   def setup_calendar_webhook(%User{} = user, calendar_id \\ "primary") do
     # Generate unique channel ID
@@ -191,8 +191,6 @@ defmodule App.Webhooks.CalendarManager do
 
     length(expiring_channels)
   end
-
-  # Private functions
 
   defp generate_channel_id(user_id, calendar_id) do
     "calendar_#{user_id}_#{calendar_id}_#{System.unique_integer([:positive])}"
