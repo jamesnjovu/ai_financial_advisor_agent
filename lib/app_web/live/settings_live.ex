@@ -28,7 +28,27 @@ defmodule AppWeb.SettingsLive do
     |> assign(task_stats: task_stats)
     |> assign(active_tab: "profile")  # Default tab
     |> assign(:page_title, "Settings")
+    |> assign(:current_page, :settings)
+    |> assign(:sidebar_open, false)
     |> ok()
+  end
+
+  @impl true
+  def handle_info({:sidebar_toggle, open}, socket) do
+    assign(socket, sidebar_open: open)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info(:new_conversation, socket) do
+    push_navigate(socket, to: ~p"/chat")
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:select_conversation, conversation_id}, socket) do
+    push_navigate(socket, to: ~p"/chat/#{conversation_id}")
+    |> noreply()
   end
 
   @impl true
