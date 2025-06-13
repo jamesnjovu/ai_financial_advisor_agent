@@ -1,15 +1,15 @@
 <div class="min-h-screen bg-gray-900 text-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-white">Settings</h1>
-          <p class="mt-2 text-gray-400">Manage your integrations, AI instructions, and account preferences</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">Settings</h1>
+          <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-400">Manage your integrations, AI instructions, and account preferences</p>
         </div>
         <.link
           navigate={~p"/chat"}
-          class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-lg text-white bg-transparent hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          class="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-600 text-sm font-medium rounded-lg text-white bg-transparent hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -26,19 +26,20 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="mb-8">
-      <div class="flex space-x-1 bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-700">
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-700 overflow-x-auto">
         <!-- Integrations Tab -->
         <button
           phx-click="switch_tab"
           phx-value-tab="integrations"
-          class={tab_class(@active_tab, "integrations")}
+          class={tab_class(@active_tab, "integrations") <> " min-w-0 flex-shrink-0"}
         >
-          <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center sm:justify-start space-x-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
             </svg>
-            <span>Integrations</span>
+            <span class="hidden sm:inline">Integrations</span>
+            <span class="sm:hidden">Connect</span>
           </div>
           <div class={tab_indicator_class(@active_tab, "integrations")}></div>
         </button>
@@ -47,16 +48,17 @@
         <button
           phx-click="switch_tab"
           phx-value-tab="instructions"
-          class={tab_class(@active_tab, "instructions")}
+          class={tab_class(@active_tab, "instructions") <> " min-w-0 flex-shrink-0"}
         >
-          <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center sm:justify-start space-x-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <span>AI Instructions</span>
+            <span class="hidden sm:inline">AI Instructions</span>
+            <span class="sm:hidden">AI</span>
             <%= if @active_instructions_count > 0 do %>
-              <span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">{@active_instructions_count}</span>
+              <span class="bg-blue-500 text-white text-xs px-1.5 sm:px-2 py-0.5 rounded-full">{@active_instructions_count}</span>
             <% end %>
           </div>
           <div class={tab_indicator_class(@active_tab, "instructions")}></div>
@@ -66,15 +68,16 @@
         <button
           phx-click="switch_tab"
           phx-value-tab="tasks"
-          class={tab_class(@active_tab, "tasks")}
+          class={tab_class(@active_tab, "tasks") <> " min-w-0 flex-shrink-0"}
         >
-          <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center sm:justify-start space-x-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
-            <span>Tasks</span>
+            <span class="hidden sm:inline">Tasks</span>
+            <span class="sm:hidden">Tasks</span>
             <%= if @pending_tasks_count > 0 do %>
-              <span class="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">{@pending_tasks_count}</span>
+              <span class="bg-yellow-500 text-black text-xs px-1.5 sm:px-2 py-0.5 rounded-full">{@pending_tasks_count}</span>
             <% end %>
           </div>
           <div class={tab_indicator_class(@active_tab, "tasks")}></div>
@@ -84,13 +87,14 @@
         <button
           phx-click="switch_tab"
           phx-value-tab="profile"
-          class={tab_class(@active_tab, "profile")}
+          class={tab_class(@active_tab, "profile") <> " min-w-0 flex-shrink-0"}
         >
-          <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center sm:justify-start space-x-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
-            <span>Profile</span>
+            <span class="hidden sm:inline">Profile</span>
+            <span class="sm:hidden">Profile</span>
           </div>
           <div class={tab_indicator_class(@active_tab, "profile")}></div>
         </button>
@@ -98,36 +102,36 @@
     </div>
 
     <!-- Tab Content -->
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       <!-- Integrations Tab -->
       <%= if @active_tab == "integrations" do %>
-        <div class="space-y-6">
+        <div class="space-y-4 sm:space-y-6">
           <!-- Integration Status Overview -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h2 class="text-xl font-semibold text-white mb-6">Integration Status</h2>
+          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">Integration Status</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <!-- Integration Status Cards -->
               <div class="space-y-4">
                 <!-- Google Integration -->
-                <div class="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <div class="flex items-center justify-between mb-3">
+                <div class="p-3 sm:p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
                     <div class="flex items-center space-x-3">
-                      <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <div class="w-8 sm:w-10 h-8 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 sm:w-6 h-4 sm:h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                         </svg>
                       </div>
-                      <div>
-                        <h3 class="font-semibold text-white">Google Workspace</h3>
-                        <p class="text-sm text-gray-400">Gmail & Calendar</p>
+                      <div class="min-w-0">
+                        <h3 class="font-semibold text-white text-sm sm:text-base">Google Workspace</h3>
+                        <p class="text-xs sm:text-sm text-gray-400">Gmail & Calendar</p>
                       </div>
                     </div>
                     <div class={[
-                      "px-3 py-1 rounded-full text-sm font-medium",
+                      "px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap",
                       if(@integration_status.gmail_connected,
                         do: "bg-green-600 text-white",
                         else: "bg-red-600 text-white"
@@ -137,7 +141,7 @@
                     </div>
                   </div>
 
-                  <div class="space-y-2 text-sm">
+                  <div class="space-y-2 text-xs sm:text-sm">
                     <div class="flex justify-between items-center">
                       <span class="text-gray-400">Email Access:</span>
                       <span class={if(@integration_status.gmail_connected, do: "text-green-400", else: "text-red-400")}>
@@ -151,7 +155,7 @@
                       </span>
                     </div>
                     <div class="flex justify-between items-center">
-                      <span class="text-gray-400">Real-time Notifications:</span>
+                      <span class="text-gray-400">Notifications:</span>
                       <span class={if(@integration_status.gmail_webhook_active && @integration_status.calendar_webhook_active, do: "text-green-400", else: "text-yellow-400")}>
                         {if @integration_status.gmail_webhook_active && @integration_status.calendar_webhook_active, do: "✓ Enabled", else: "~ Partial"}
                       </span>
@@ -160,22 +164,22 @@
                 </div>
 
                 <!-- HubSpot Integration -->
-                <div class="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <div class="flex items-center justify-between mb-3">
+                <div class="p-3 sm:p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
                     <div class="flex items-center space-x-3">
-                      <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <div class="w-8 sm:w-10 h-8 sm:h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 sm:w-6 h-4 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
                         </svg>
                       </div>
-                      <div>
-                        <h3 class="font-semibold text-white">HubSpot CRM</h3>
-                        <p class="text-sm text-gray-400">Contact Management</p>
+                      <div class="min-w-0">
+                        <h3 class="font-semibold text-white text-sm sm:text-base">HubSpot CRM</h3>
+                        <p class="text-xs sm:text-sm text-gray-400">Contact Management</p>
                       </div>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                       <div class={[
-                        "px-3 py-1 rounded-full text-sm font-medium",
+                        "px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-center whitespace-nowrap",
                         if(@integration_status.hubspot_connected,
                           do: "bg-green-600 text-white",
                           else: "bg-yellow-600 text-white"
@@ -186,14 +190,14 @@
                       <%= if @integration_status.hubspot_connected do %>
                         <button
                           phx-click="disconnect_hubspot"
-                          class="text-sm text-red-400 hover:text-red-300 px-3 py-1 rounded border border-red-600 hover:border-red-500 transition-colors"
+                          class="text-xs sm:text-sm text-red-400 hover:text-red-300 px-2 sm:px-3 py-1 rounded border border-red-600 hover:border-red-500 transition-colors text-center"
                         >
                           Disconnect
                         </button>
                       <% else %>
                         <button
                           phx-click="connect_hubspot"
-                          class="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors border border-orange-600"
+                          class="px-2 sm:px-3 py-1 bg-orange-600 text-white text-xs sm:text-sm rounded hover:bg-orange-700 transition-colors border border-orange-600 text-center"
                         >
                           Connect
                         </button>
@@ -201,7 +205,7 @@
                     </div>
                   </div>
 
-                  <div class="text-sm text-gray-400">
+                  <div class="text-xs sm:text-sm text-gray-400">
                     <%= if @integration_status.hubspot_connected do %>
                       <p>✓ Can create and update contacts automatically</p>
                       <p>✓ Syncs contact data for AI analysis</p>
@@ -214,43 +218,43 @@
 
               <!-- Knowledge Base Status -->
               <div class="space-y-4">
-                <div class="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-white">Knowledge Base</h3>
+                <div class="p-3 sm:p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                    <h3 class="font-semibold text-white text-sm sm:text-base">Knowledge Base</h3>
                     <button
                       phx-click="sync_knowledge_base"
-                      class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                      class="px-2 sm:px-3 py-1 bg-blue-600 text-white text-xs sm:text-sm rounded hover:bg-blue-700 transition-colors w-full sm:w-auto"
                     >
                       Sync Now
                     </button>
                   </div>
 
                   <div class="space-y-3">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center text-xs sm:text-sm">
                       <span class="text-gray-400">Email Entries:</span>
                       <span class="text-white font-medium">{@sync_status.email_entries || 0}</span>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center text-xs sm:text-sm">
                       <span class="text-gray-400">HubSpot Entries:</span>
                       <span class="text-white font-medium">{@sync_status.hubspot_entries || 0}</span>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center text-xs sm:text-sm">
                       <span class="text-gray-400">Total Entries:</span>
                       <span class="text-white font-medium">{@sync_status.total_entries || 0}</span>
                     </div>
                     <%= if @sync_status.last_sync do %>
-                      <div class="flex justify-between items-center">
+                      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-xs sm:text-sm">
                         <span class="text-gray-400">Last Sync:</span>
-                        <span class="text-white text-sm">{format_datetime(@sync_status.last_sync)}</span>
+                        <span class="text-white break-words">{format_datetime(@sync_status.last_sync)}</span>
                       </div>
                     <% end %>
                   </div>
                 </div>
 
                 <!-- Integration Help -->
-                <div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
-                  <h4 class="font-medium text-blue-300 mb-2">Need Help?</h4>
-                  <div class="text-sm text-blue-200 space-y-1">
+                <div class="p-3 sm:p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                  <h4 class="font-medium text-blue-300 mb-2 text-sm sm:text-base">Need Help?</h4>
+                  <div class="text-xs sm:text-sm text-blue-200 space-y-1">
                     <p>• Google integration is required for AI functionality</p>
                     <p>• HubSpot integration enables CRM automation</p>
                     <p>• Knowledge base syncs your data for better AI responses</p>
@@ -264,22 +268,22 @@
 
       <!-- AI Instructions Tab -->
       <%= if @active_tab == "instructions" do %>
-        <div class="space-y-6">
+        <div class="space-y-4 sm:space-y-6">
           <!-- Instructions Overview -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <div class="flex items-center justify-between mb-6">
+          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
               <div>
-                <h2 class="text-xl font-semibold text-white">AI Instructions</h2>
-                <p class="text-gray-400">Manage your automated AI behaviors and triggers</p>
+                <h2 class="text-lg sm:text-xl font-semibold text-white">AI Instructions</h2>
+                <p class="text-sm sm:text-base text-gray-400">Manage your automated AI behaviors and triggers</p>
               </div>
-              <div class="flex items-center space-x-6">
+              <div class="flex flex-row sm:flex-row items-center justify-center sm:justify-end space-x-4 sm:space-x-6">
                 <div class="text-center">
-                  <div class="text-3xl font-bold text-blue-400">{@active_instructions_count}</div>
-                  <div class="text-sm text-gray-500">Active</div>
+                  <div class="text-2xl sm:text-3xl font-bold text-blue-400">{@active_instructions_count}</div>
+                  <div class="text-xs sm:text-sm text-gray-500">Active</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-3xl font-bold text-gray-400">{@instructions_count}</div>
-                  <div class="text-sm text-gray-500">Total</div>
+                  <div class="text-2xl sm:text-3xl font-bold text-gray-400">{@instructions_count}</div>
+                  <div class="text-xs sm:text-sm text-gray-500">Total</div>
                 </div>
               </div>
             </div>
@@ -287,51 +291,53 @@
             <%= if Enum.any?(@user_instructions) do %>
               <div class="space-y-4">
                 <%= for instruction <- @user_instructions do %>
-                  <div class="p-4 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors">
-                    <div class="flex items-start justify-between">
+                  <div class="p-3 sm:p-4 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors">
+                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                       <div class="flex-1 min-w-0">
-                        <div class="flex items-center space-x-3 mb-3">
-                          <div class={[
-                            "w-3 h-3 rounded-full",
-                            if(instruction.active, do: "bg-green-500 animate-pulse", else: "bg-gray-500")
-                          ]}></div>
-                          <span class={[
-                            "text-sm font-semibold",
-                            if(instruction.active, do: "text-green-400", else: "text-gray-400")
-                          ]}>
-                            {if instruction.active, do: "ACTIVE", else: "INACTIVE"}
-                          </span>
-                          <span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+                        <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-3">
+                          <div class="flex items-center space-x-3">
+                            <div class={[
+                              "w-3 h-3 rounded-full flex-shrink-0",
+                              if(instruction.active, do: "bg-green-500 animate-pulse", else: "bg-gray-500")
+                            ]}></div>
+                            <span class={[
+                              "text-xs sm:text-sm font-semibold",
+                              if(instruction.active, do: "text-green-400", else: "text-gray-400")
+                            ]}>
+                              {if instruction.active, do: "ACTIVE", else: "INACTIVE"}
+                            </span>
+                          </div>
+                          <span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded w-fit">
                             Priority: {instruction.priority}
                           </span>
                         </div>
 
-                        <p class="text-white text-sm mb-3 leading-relaxed">
+                        <p class="text-white text-sm sm:text-base mb-3 leading-relaxed">
                           {instruction.instruction}
                         </p>
 
-                        <div class="flex flex-wrap items-center gap-4 text-xs text-gray-400">
+                        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs text-gray-400">
                           <div class="flex items-center space-x-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                             </svg>
-                            <span>Triggers: {format_triggers(instruction.triggers)}</span>
+                            <span class="break-words">Triggers: {format_triggers(instruction.triggers)}</span>
                           </div>
                           <div class="flex items-center space-x-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>Created: {format_datetime(instruction.inserted_at)}</span>
+                            <span class="break-words">Created: {format_datetime(instruction.inserted_at)}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div class="flex items-center space-x-2 ml-4">
+                      <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 lg:ml-4 lg:flex-shrink-0">
                         <button
                           phx-click="toggle_instruction"
                           phx-value-id={instruction.id}
                           class={[
-                            "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800",
+                            "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 text-center",
                             if(instruction.active,
                               do: "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500",
                               else: "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
@@ -344,7 +350,7 @@
                           phx-click="delete_instruction"
                           phx-value-id={instruction.id}
                           data-confirm="Are you sure you want to delete this instruction? This action cannot be undone."
-                          class="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                          class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 text-center"
                         >
                           Delete
                         </button>
@@ -354,19 +360,19 @@
                 <% end %>
               </div>
             <% else %>
-              <div class="text-center py-12">
-                <div class="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="text-center py-8 sm:py-12">
+                <div class="w-12 sm:w-16 h-12 sm:h-16 bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-6 sm:w-8 h-6 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-white mb-2">No Instructions Yet</h3>
-                <p class="text-gray-400 mb-6">
+                <h3 class="text-base sm:text-lg font-medium text-white mb-2">No Instructions Yet</h3>
+                <p class="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 px-4">
                   Create your first automation instruction through the chat interface
                 </p>
                 <.link
                   navigate={~p"/chat"}
-                  class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                  class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                 >
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -384,395 +390,394 @@
           </div>
 
           <!-- Example Instructions -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Example Instructions</h3>
-            <p class="text-gray-400 mb-6">Get inspired by these automation ideas</p>
+                    <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+                      <h3 class="text-base sm:text-lg font-semibold text-white mb-4">Example Instructions</h3>
+                      <p class="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">Get inspired by these automation ideas</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-blue-500/50 transition-colors">
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-white font-medium mb-1">Auto-Contact Creation</h4>
-                    <p class="text-sm text-gray-400">
-                      "When someone emails me who isn't in HubSpot, create a contact with a note about the email."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-green-500/50 transition-colors">
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 1v8m0 0l3-3m-3 3l-3-3m3 3V9a4 4 0 00-8 0v2m4-6h6l2 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V9l2-2h6z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-white font-medium mb-1">Meeting Follow-up</h4>
-                    <p class="text-sm text-gray-400">
-                      "After scheduling a meeting, send a confirmation email with the agenda and dial-in details."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-purple-500/50 transition-colors">
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-white font-medium mb-1">Welcome Sequence</h4>
-                    <p class="text-sm text-gray-400">
-                      "When I create a new contact in HubSpot, send them a welcome email series."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-orange-500/50 transition-colors">
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="text-white font-medium mb-1">Lead Scoring</h4>
-                    <p class="text-sm text-gray-400">
-                      "When someone replies to my email, increase their lead score and notify me if it reaches 100."
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-6 pt-6 border-t border-gray-700">
-              <p class="text-sm text-gray-400 mb-4">
-                You can create these instructions by talking to your AI assistant in natural language.
-              </p>
-              <.link
-                navigate={~p"/chat"}
-                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  >
-                  </path>
-                </svg>
-                Create Your First Instruction
-              </.link>
-            </div>
-          </div>
-        </div>
-      <% end %>
-
-      <!-- Tasks Tab -->
-      <%= if @active_tab == "tasks" do %>
-        <div class="space-y-6">
-          <!-- Task Statistics -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <div class="ml-4">
-                  <p class="text-3xl font-bold text-green-400">{@task_stats.completed}</p>
-                  <p class="text-sm text-gray-400">Completed</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <div class="ml-4">
-                  <p class="text-3xl font-bold text-yellow-400">{@task_stats.pending}</p>
-                  <p class="text-sm text-gray-400">Pending</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <div class="ml-4">
-                  <p class="text-3xl font-bold text-red-400">{@task_stats.failed}</p>
-                  <p class="text-sm text-gray-400">Failed</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                  </svg>
-                </div>
-                <div class="ml-4">
-                  <p class="text-3xl font-bold text-blue-400">{@task_stats.success_rate}%</p>
-                  <p class="text-sm text-gray-400">Success Rate</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Tasks -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
-            <div class="p-6 border-b border-gray-700">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-xl font-semibold text-white">Recent Tasks</h2>
-                  <p class="text-gray-400">Monitor your AI assistant's activity</p>
-                </div>
-                <button
-                  phx-click="refresh_tasks"
-                  class="flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                  </svg>
-                  Refresh
-                </button>
-              </div>
-            </div>
-
-            <div class="p-6">
-              <%= if @pending_tasks_count > 0 do %>
-                <div class="mb-6 p-4 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse mr-3"></div>
-                    <span class="text-yellow-400 font-medium">
-                      {@pending_tasks_count} task{if @pending_tasks_count != 1, do: "s"} currently pending execution
-                    </span>
-                  </div>
-                </div>
-              <% end %>
-
-              <%= if Enum.any?(@recent_tasks) do %>
-                <div class="space-y-4 max-h-96 overflow-y-auto">
-                  <%= for task <- @recent_tasks do %>
-                    <div class="p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:border-gray-500 transition-colors">
-                      <div class="flex items-start justify-between">
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center space-x-3 mb-3">
-                            <svg class={["w-5 h-5",
-                              case task.status do
-                                "completed" -> "text-green-400"
-                                "failed" -> "text-red-400"
-                                "in_progress" -> "text-blue-400"
-                                "pending" -> "text-yellow-400"
-                                _ -> "text-gray-400"
-                              end
-                            ]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <%= case task.status do %>
-                                <% "completed" -> %>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                <% "failed" -> %>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                <% "in_progress" -> %>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                <% _ -> %>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              <% end %>
-                            </svg>
-
-                            <span class={[
-                              "text-sm px-3 py-1 rounded-full border font-medium",
-                              status_class(task.status)
-                            ]}>
-                              {String.capitalize(task.status)}
-                            </span>
-
-                            <span class="text-sm text-gray-400 bg-gray-800 px-2 py-1 rounded">
-                              {String.replace(task.task_type, "_", " ") |> String.capitalize()}
-                            </span>
-                          </div>
-
-                          <h4 class="text-lg font-medium text-white mb-2">
-                            {task.title}
-                          </h4>
-
-                          <%= if task.description do %>
-                            <p class="text-sm text-gray-400 mb-3">
-                              {truncate_text(task.description, 100)}
-                            </p>
-                          <% end %>
-
-                          <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                            <span>
-                              {if task.completed_at,
-                                do: "Completed: #{format_datetime(task.completed_at)}",
-                                else: "Created: #{format_datetime(task.inserted_at)}"}
-                            </span>
-                            <%= if task.next_action_at do %>
-                              <span>Next Action: {format_datetime(task.next_action_at)}</span>
-                            <% end %>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <div class="p-3 sm:p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-blue-500/50 transition-colors">
+                          <div class="flex items-start space-x-3">
+                            <div class="w-6 sm:w-8 h-6 sm:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                              <svg class="w-3 sm:w-4 h-3 sm:h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 class="text-white font-medium mb-1 text-sm sm:text-base">Auto-Contact Creation</h4>
+                              <p class="text-xs sm:text-sm text-gray-400">
+                                "When someone emails me who isn't in HubSpot, create a contact with a note about the email."
+                              </p>
+                            </div>
                           </div>
                         </div>
 
-                        <div class="flex flex-col space-y-2 ml-4">
-                          <%= if task.status == "failed" do %>
-                            <button
-                              phx-click="retry_failed_task"
-                              phx-value-id={task.id}
-                              class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
-                              title="Retry this task"
-                            >
-                              Retry
-                            </button>
-                          <% end %>
-
-                          <%= if task.metadata && map_size(task.metadata) > 0 do %>
-                            <div class="text-xs text-gray-500 flex items-center space-x-2">
-                              <%= if task.metadata["result"] do %>
-                                <span class="text-green-400 flex items-center">
-                                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                  </svg>
-                                  Success
-                                </span>
-                              <% end %>
-                              <%= if task.metadata["error"] do %>
-                                <span class="text-red-400 flex items-center" title={task.metadata["error"]}>
-                                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                  </svg>
-                                  Error
-                                </span>
-                              <% end %>
+                        <div class="p-3 sm:p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-green-500/50 transition-colors">
+                          <div class="flex items-start space-x-3">
+                            <div class="w-6 sm:w-8 h-6 sm:h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                              <svg class="w-3 sm:w-4 h-3 sm:h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 1v8m0 0l3-3m-3 3l-3-3m3 3V9a4 4 0 00-8 0v2m4-6h6l2 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V9l2-2h6z"></path>
+                              </svg>
                             </div>
-                          <% end %>
+                            <div>
+                              <h4 class="text-white font-medium mb-1 text-sm sm:text-base">Meeting Follow-up</h4>
+                              <p class="text-xs sm:text-sm text-gray-400">
+                                "After scheduling a meeting, send a confirmation email with the agenda and dial-in details."
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="p-3 sm:p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-purple-500/50 transition-colors">
+                          <div class="flex items-start space-x-3">
+                            <div class="w-6 sm:w-8 h-6 sm:h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                              <svg class="w-3 sm:w-4 h-3 sm:h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 class="text-white font-medium mb-1 text-sm sm:text-base">Welcome Sequence</h4>
+                              <p class="text-xs sm:text-sm text-gray-400">
+                                "When I create a new contact in HubSpot, send them a welcome email series."
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="p-3 sm:p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-orange-500/50 transition-colors">
+                          <div class="flex items-start space-x-3">
+                            <div class="w-6 sm:w-8 h-6 sm:h-8 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                              <svg class="w-3 sm:w-4 h-3 sm:h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 class="text-white font-medium mb-1 text-sm sm:text-base">Lead Scoring</h4>
+                              <p class="text-xs sm:text-sm text-gray-400">
+                                "When someone replies to my email, increase their lead score and notify me if it reaches 100."
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-700">
+                        <p class="text-xs sm:text-sm text-gray-400 mb-4">
+                          You can create these instructions by talking to your AI assistant in natural language.
+                        </p>
+                        <.link
+                          navigate={~p"/chat"}
+                          class="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full sm:w-auto justify-center"
+                        >
+                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 4v16m8-8H4"
+                            >
+                            </path>
+                          </svg>
+                          Create Your First Instruction
+                        </.link>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Tasks Tab -->
+                <%= if @active_tab == "tasks" do %>
+                  <div class="space-y-4 sm:space-y-6">
+                    <!-- Task Statistics -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                      <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-3 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center">
+                          <div class="w-8 sm:w-12 h-8 sm:h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-2 sm:mb-0 mx-auto sm:mx-0">
+                            <svg class="w-4 sm:w-6 h-4 sm:h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          </div>
+                          <div class="sm:ml-4 text-center sm:text-left">
+                            <p class="text-xl sm:text-3xl font-bold text-green-400">{@task_stats.completed}</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Completed</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-3 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center">
+                          <div class="w-8 sm:w-12 h-8 sm:h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-2 sm:mb-0 mx-auto sm:mx-0">
+                            <svg class="w-4 sm:w-6 h-4 sm:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          </div>
+                          <div class="sm:ml-4 text-center sm:text-left">
+                            <p class="text-xl sm:text-3xl font-bold text-yellow-400">{@task_stats.pending}</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Pending</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-3 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center">
+                          <div class="w-8 sm:w-12 h-8 sm:h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-2 sm:mb-0 mx-auto sm:mx-0">
+                            <svg class="w-4 sm:w-6 h-4 sm:h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          </div>
+                          <div class="sm:ml-4 text-center sm:text-left">
+                            <p class="text-xl sm:text-3xl font-bold text-red-400">{@task_stats.failed}</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Failed</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-3 sm:p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center">
+                          <div class="w-8 sm:w-12 h-8 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-2 sm:mb-0 mx-auto sm:mx-0">
+                            <svg class="w-4 sm:w-6 h-4 sm:h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                          </div>
+                          <div class="sm:ml-4 text-center sm:text-left">
+                            <p class="text-xl sm:text-3xl font-bold text-blue-400">{@task_stats.success_rate}%</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Success Rate</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  <% end %>
-                </div>
-              <% else %>
-                <div class="text-center py-12">
-                  <div class="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                  </div>
-                  <h3 class="text-lg font-medium text-white mb-2">No Tasks Yet</h3>
-                  <p class="text-gray-400">
-                    Tasks will appear here when your AI assistant performs actions
-                  </p>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
 
-      <!-- Profile Tab -->
-      <%= if @active_tab == "profile" do %>
-        <div class="space-y-6">
-          <!-- User Profile -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h2 class="text-xl font-semibold text-white mb-6">Profile Information</h2>
+                    <!-- Recent Tasks -->
+                    <div class="bg-gray-800 rounded-lg shadow border border-gray-700">
+                      <div class="p-4 sm:p-6 border-b border-gray-700">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div>
+                            <h2 class="text-lg sm:text-xl font-semibold text-white">Recent Tasks</h2>
+                            <p class="text-sm sm:text-base text-gray-400">Monitor your AI assistant's activity</p>
+                          </div>
+                          <button
+                            phx-click="refresh_tasks"
+                            class="flex items-center justify-center px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full sm:w-auto"
+                          >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                          </button>
+                        </div>
+                      </div>
 
-            <div class="flex items-start space-x-6">
-              <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span class="text-white text-2xl font-bold">
-                  {String.first(@current_user.name || @current_user.email) |> String.upcase()}
-                </span>
-              </div>
+                      <div class="p-4 sm:p-6">
+                        <%= if @pending_tasks_count > 0 do %>
+                          <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+                            <div class="flex items-center">
+                              <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse mr-3 flex-shrink-0"></div>
+                              <span class="text-yellow-400 font-medium text-sm sm:text-base">
+                                {@pending_tasks_count} task{if @pending_tasks_count != 1, do: "s"} currently pending execution
+                              </span>
+                            </div>
+                          </div>
+                        <% end %>
 
-              <div class="flex-1">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                    <div class="p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
-                      <span class="text-white">{@current_user.name || "Not provided"}</span>
+                        <%= if Enum.any?(@recent_tasks) do %>
+                          <div class="space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
+                            <%= for task <- @recent_tasks do %>
+                              <div class="p-3 sm:p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:border-gray-500 transition-colors">
+                                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                  <div class="flex-1 min-w-0">
+                                    <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-3">
+                                      <svg class={["w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0",
+                                        case task.status do
+                                          "completed" -> "text-green-400"
+                                          "failed" -> "text-red-400"
+                                          "in_progress" -> "text-blue-400"
+                                          "pending" -> "text-yellow-400"
+                                          _ -> "text-gray-400"
+                                        end
+                                      ]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <%= case task.status do %>
+                                          <% "completed" -> %>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                          <% "failed" -> %>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                          <% "in_progress" -> %>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                          <% _ -> %>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        <% end %>
+                                      </svg>
+
+                                      <span class={[
+                                        "text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full border font-medium w-fit",
+                                        status_class(task.status)
+                                      ]}>
+                                        {String.capitalize(task.status)}
+                                      </span>
+
+                                      <span class="text-xs sm:text-sm text-gray-400 bg-gray-800 px-2 py-1 rounded w-fit">
+                                        {String.replace(task.task_type, "_", " ") |> String.capitalize()}
+                                      </span>
+                                    </div>
+
+                                    <h4 class="text-sm sm:text-lg font-medium text-white mb-2">
+                                      {task.title}
+                                    </h4>
+
+                                    <%= if task.description do %>
+                                      <p class="text-xs sm:text-sm text-gray-400 mb-3">
+                                        {truncate_text(task.description, 100)}
+                                      </p>
+                                    <% end %>
+
+                                    <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
+                                      <span class="break-words">
+                                        {if task.completed_at,
+                                          do: "Completed: #{format_datetime(task.completed_at)}",
+                                          else: "Created: #{format_datetime(task.inserted_at)}"}
+                                      </span>
+                                      <%= if task.next_action_at do %>
+                                        <span class="break-words">Next Action: {format_datetime(task.next_action_at)}</span>
+                                      <% end %>
+                                    </div>
+                                  </div>
+
+                                  <div class="flex flex-col space-y-2 lg:ml-4 lg:flex-shrink-0">
+                                    <%= if task.status == "failed" do %>
+                                      <button
+                                        phx-click="retry_failed_task"
+                                        phx-value-id={task.id}
+                                        class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 text-center"
+                                        title="Retry this task"
+                                      >
+                                        Retry
+                                      </button>
+                                    <% end %>
+
+                                    <%= if task.metadata && map_size(task.metadata) > 0 do %>
+                                      <div class="text-xs text-gray-500 flex flex-wrap items-center gap-2">
+                                        <%= if task.metadata["result"] do %>
+                                          <span class="text-green-400 flex items-center">
+                                            <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Success
+                                          </span>
+                                        <% end %>
+                                        <%= if task.metadata["error"] do %>
+                                          <span class="text-red-400 flex items-center" title={task.metadata["error"]}>
+                                            <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            Error
+                                          </span>
+                                        <% end %>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                </div>
+                              </div>
+                            <% end %>
+                          </div>
+                        <% else %>
+                          <div class="text-center py-8 sm:py-12">
+                            <div class="w-12 sm:w-16 h-12 sm:h-16 bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+                              <svg class="w-6 sm:w-8 h-6 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                              </svg>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-medium text-white mb-2">No Tasks Yet</h3>
+                            <p class="text-sm sm:text-base text-gray-400 px-4">
+                              Tasks will appear here when your AI assistant performs actions
+                            </p>
+                          </div>
+                        <% end %>
+                      </div>
                     </div>
                   </div>
+                <% end %>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                    <div class="p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
-                      <span class="text-white">{@current_user.email}</span>
+                <!-- Profile Tab -->
+                <%= if @active_tab == "profile" do %>
+                  <div class="space-y-4 sm:space-y-6">
+                    <!-- User Profile -->
+                    <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+                      <h2 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">Profile Information</h2>
+
+                      <div class="flex flex-col sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+                        <div class="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mx-auto sm:mx-0 flex-shrink-0">
+                          <span class="text-white text-xl sm:text-2xl font-bold">
+                            {String.first(@current_user.name || @current_user.email) |> String.upcase()}
+                          </span>
+                        </div>
+
+                        <div class="flex-1">
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div>
+                              <label class="block text-xs sm:text-sm font-medium text-gray-400 mb-2">Name</label>
+                              <div class="p-2 sm:p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                <span class="text-white text-sm sm:text-base break-words">{@current_user.name || "Not provided"}</span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label class="block text-xs sm:text-sm font-medium text-gray-400 mb-2">Email</label>
+                              <div class="p-2 sm:p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                <span class="text-white text-sm sm:text-base break-all">{@current_user.email}</span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label class="block text-xs sm:text-sm font-medium text-gray-400 mb-2">Member Since</label>
+                              <div class="p-2 sm:p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                <span class="text-white text-sm sm:text-base break-words">{format_datetime(@current_user.inserted_at)}</span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label class="block text-xs sm:text-sm font-medium text-gray-400 mb-2">Account Status</label>
+                              <div class="p-2 sm:p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
+                                <span class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-xs sm:text-sm rounded-full">
+                                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                  Active
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Member Since</label>
-                    <div class="p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
-                      <span class="text-white">{format_datetime(@current_user.inserted_at)}</span>
+                    <!-- Account Statistics -->
+                    <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+                      <h3 class="text-base sm:text-lg font-semibold text-white mb-4">Account Activity</h3>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                        <div class="text-center p-3 sm:p-4 bg-gray-700/30 rounded-lg">
+                          <div class="text-xl sm:text-2xl font-bold text-blue-400 mb-1">{@instructions_count}</div>
+                          <div class="text-xs sm:text-sm text-gray-400">Total Instructions</div>
+                        </div>
+
+                        <div class="text-center p-3 sm:p-4 bg-gray-700/30 rounded-lg">
+                          <div class="text-xl sm:text-2xl font-bold text-green-400 mb-1">{@task_stats.completed}</div>
+                          <div class="text-xs sm:text-sm text-gray-400">Tasks Completed</div>
+                        </div>
+
+                        <div class="text-center p-3 sm:p-4 bg-gray-700/30 rounded-lg">
+                          <div class="text-xl sm:text-2xl font-bold text-purple-400 mb-1">{@sync_status.total_entries || 0}</div>
+                          <div class="text-xs sm:text-sm text-gray-400">Knowledge Entries</div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Account Status</label>
-                    <div class="p-3 bg-gray-700/50 border border-gray-600 rounded-lg">
-                      <span class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-sm rounded-full">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Account Statistics -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Account Activity</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="text-center p-4 bg-gray-700/30 rounded-lg">
-                <div class="text-2xl font-bold text-blue-400 mb-1">{@instructions_count}</div>
-                <div class="text-sm text-gray-400">Total Instructions</div>
-              </div>
-
-              <div class="text-center p-4 bg-gray-700/30 rounded-lg">
-                <div class="text-2xl font-bold text-green-400 mb-1">{@task_stats.completed}</div>
-                <div class="text-sm text-gray-400">Tasks Completed</div>
-              </div>
-
-              <div class="text-center p-4 bg-gray-700/30 rounded-lg">
-                <div class="text-2xl font-bold text-purple-400 mb-1">{@sync_status.total_entries || 0}</div>
-                <div class="text-sm text-gray-400">Knowledge Entries</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Connected Services -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Connected Services</h3>
-
-            <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+                    <!-- Connected Services -->
+                    <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+                      <h3 class="text-base sm:text-lg font-semibold text-white mb-4">Connected Services</h3>
+                      <div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-700/30 rounded-lg gap-3">
                 <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <div class="w-8 sm:w-10 h-8 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 sm:w-6 h-4 sm:h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -780,11 +785,11 @@
                     </svg>
                   </div>
                   <div>
-                    <h4 class="font-medium text-white">Google Workspace</h4>
-                    <p class="text-sm text-gray-400">Gmail, Calendar & Drive</p>
+                    <h4 class="font-medium text-white text-sm sm:text-base">Google Workspace</h4>
+                    <p class="text-xs sm:text-sm text-gray-400">Gmail, Calendar & Drive</p>
                   </div>
                 </div>
-                <span class="text-green-400 flex items-center">
+                <span class="text-green-400 flex items-center text-sm sm:text-base">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
@@ -792,27 +797,27 @@
                 </span>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-700/30 rounded-lg gap-3">
                 <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <div class="w-8 sm:w-10 h-8 sm:h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 sm:w-6 h-4 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M18.164 7.93V4.746a4.755 4.755 0 10-9.51 0V7.93a7.976 7.976 0 104.755 14.309A7.976 7.976 0 0018.164 7.93z" />
                     </svg>
                   </div>
                   <div>
-                    <h4 class="font-medium text-white">HubSpot CRM</h4>
-                    <p class="text-sm text-gray-400">Contact & Lead Management</p>
+                    <h4 class="font-medium text-white text-sm sm:text-base">HubSpot CRM</h4>
+                    <p class="text-xs sm:text-sm text-gray-400">Contact & Lead Management</p>
                   </div>
                 </div>
                 <%= if @integration_status.hubspot_connected do %>
-                  <span class="text-green-400 flex items-center">
+                  <span class="text-green-400 flex items-center text-sm sm:text-base">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     Connected
                   </span>
                 <% else %>
-                  <span class="text-gray-400 flex items-center">
+                  <span class="text-gray-400 flex items-center text-sm sm:text-base">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -824,13 +829,13 @@
           </div>
 
           <!-- Privacy & Data -->
-          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Privacy & Data</h3>
+          <div class="bg-gray-800 rounded-lg shadow border border-gray-700 p-4 sm:p-6">
+            <h3 class="text-base sm:text-lg font-semibold text-white mb-4">Privacy & Data</h3>
 
             <div class="space-y-4">
-              <div class="p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
-                <h4 class="font-medium text-blue-300 mb-2">Data Security</h4>
-                <ul class="text-sm text-blue-200 space-y-1">
+              <div class="p-3 sm:p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                <h4 class="font-medium text-blue-300 mb-2 text-sm sm:text-base">Data Security</h4>
+                <ul class="text-xs sm:text-sm text-blue-200 space-y-1">
                   <li>• Your data is encrypted in transit and at rest</li>
                   <li>• We only access data you explicitly grant permission for</li>
                   <li>• AI processing happens securely through OpenAI's API</li>
@@ -838,9 +843,9 @@
                 </ul>
               </div>
 
-              <div class="p-4 bg-gray-700/30 rounded-lg">
-                <h4 class="font-medium text-white mb-2">Data Usage</h4>
-                <div class="text-sm text-gray-400 space-y-2">
+              <div class="p-3 sm:p-4 bg-gray-700/30 rounded-lg">
+                <h4 class="font-medium text-white mb-2 text-sm sm:text-base">Data Usage</h4>
+                <div class="text-xs sm:text-sm text-gray-400 space-y-2">
                   <p>Your data is used to:</p>
                   <ul class="ml-4 space-y-1">
                     <li>• Provide personalized AI assistance</li>
@@ -853,30 +858,30 @@
           </div>
 
           <!-- Danger Zone -->
-          <div class="bg-gray-800 rounded-lg shadow border border-red-600 p-6">
-            <h3 class="text-lg font-semibold text-red-400 mb-4">Danger Zone</h3>
-            <p class="text-gray-400 mb-6">These actions are permanent and cannot be undone.</p>
+          <div class="bg-gray-800 rounded-lg shadow border border-red-600 p-4 sm:p-6">
+            <h3 class="text-base sm:text-lg font-semibold text-red-400 mb-4">Danger Zone</h3>
+            <p class="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">These actions are permanent and cannot be undone.</p>
 
             <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-red-900/20 border border-red-600/50 rounded-lg">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-red-900/20 border border-red-600/50 rounded-lg gap-3">
                 <div>
-                  <h4 class="font-medium text-white">Disconnect All Services</h4>
-                  <p class="text-sm text-gray-400">Remove all integrations and revoke access tokens</p>
+                  <h4 class="font-medium text-white text-sm sm:text-base">Disconnect All Services</h4>
+                  <p class="text-xs sm:text-sm text-gray-400">Remove all integrations and revoke access tokens</p>
                 </div>
-                <button class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+                <button class="px-3 sm:px-4 py-2 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full sm:w-auto">
                   Disconnect All
                 </button>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-red-900/20 border border-red-600/50 rounded-lg">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-red-900/20 border border-red-600/50 rounded-lg gap-3">
                 <div>
-                  <h4 class="font-medium text-white">Sign Out</h4>
-                  <p class="text-sm text-gray-400">Sign out from your current session</p>
+                  <h4 class="font-medium text-white text-sm sm:text-base">Sign Out</h4>
+                  <p class="text-xs sm:text-sm text-gray-400">Sign out from your current session</p>
                 </div>
                 <.link
                   href={~p"/auth/logout"}
                   method="delete"
-                  class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                  class="px-3 sm:px-4 py-2 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 text-center w-full sm:w-auto"
                   data-confirm="Are you sure you want to sign out?"
                 >
                   Sign Out

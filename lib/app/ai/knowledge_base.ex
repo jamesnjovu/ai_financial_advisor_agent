@@ -214,7 +214,7 @@ defmodule App.AI.KnowledgeBase do
             user_id: user.id,
             source_type: "hubspot_contact",
             source_id: contact_id,
-            title: "#{properties["firstname"] || ""} #{properties["lastname"] || ""}".trim(),
+            title: String.trim("#{properties["firstname"] || ""} #{properties["lastname"] || ""}"),
             content: content,
             metadata: properties,
             embedding: embedding,
@@ -231,7 +231,7 @@ defmodule App.AI.KnowledgeBase do
             user_id: user.id,
             source_type: "hubspot_contact",
             source_id: contact_id,
-            title: "#{properties["firstname"] || ""} #{properties["lastname"] || ""}".trim(),
+            title: String.trim("#{properties["firstname"] || ""} #{properties["lastname"] || ""}"),
             content: content,
             metadata: properties,
             last_synced_at: DateTime.utc_now()
