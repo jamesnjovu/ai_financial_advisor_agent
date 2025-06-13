@@ -40,7 +40,7 @@ config :app, :hubspot_oauth,
        client_secret: System.get_env("HUBSPOT_CLIENT_SECRET"),
        redirect_uri: System.get_env("HUBSPOT_REDIRECT_URI")
 
-config :app, :intergretion,
+config :app, :integration,
        google_project_id: System.get_env("GOOGLE_CLOUD_PROJECT_ID"),
        gmail_token_name: System.get_env("GMAIL_TOPIC_NAME")
 

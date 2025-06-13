@@ -91,7 +91,7 @@ defmodule App.Integrations.GmailClient do
   def watch_inbox(user, webhook_url) do
     case GoogleOAuth.get_valid_token(user) do
       {:ok, token} ->
-        config = Application.get_env(:app, :intergretion)
+        config = Application.get_env(:app, :integration)
         headers = [
           {"Authorization", "Bearer #{token}"},
           {"Content-Type", "application/json"}
@@ -224,10 +224,10 @@ defmodule App.Integrations.GmailClient do
           {"Authorization", "Bearer #{token}"},
           {"Content-Type", "application/json"}
         ]
-
+        config = Application.get_env(:app, :integration)
         # Get configuration
-        project_id = Application.get_env(:app, :google_pubsub_project_id)
-        topic_name = Application.get_env(:app, :gmail_pubsub_topic, "gmail-push")
+        project_id = config[:google_pubsub_project_id]
+        topic_name = config[:gmail_token_name] || "gmail-push"
 
         payload = %{
           labelIds: ["INBOX"],
